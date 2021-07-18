@@ -1,0 +1,214 @@
+{
+	"ABI version": 2,
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"},
+				{"name":"uploaderPubkey","type":"uint256"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getTokenCode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"cell"}
+			]
+		},
+		{
+			"name": "callTokenCode",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"cell"}
+			]
+		},
+		{
+			"name": "getTokensIssued",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"uint128"}
+			]
+		},
+		{
+			"name": "callTokensIssued",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"uint128"}
+			]
+		},
+		{
+			"name": "getCollectionName",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"bytes"}
+			]
+		},
+		{
+			"name": "callCollectionName",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"bytes"}
+			]
+		},
+		{
+			"name": "createEmptyNFT",
+			"inputs": [
+				{"name":"uploaderPubkey","type":"uint256"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"dtCreated","type":"uint32"},{"name":"ownerAddress","type":"address"},{"name":"authorAddress","type":"address"}],"name":"value0","type":"tuple"}
+			]
+		},
+		{
+			"name": "callInfo",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"}
+			],
+			"outputs": [
+				{"components":[{"name":"dtCreated","type":"uint32"},{"name":"ownerAddress","type":"address"},{"name":"authorAddress","type":"address"}],"name":"value0","type":"tuple"}
+			]
+		},
+		{
+			"name": "getMedia",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"contents","type":"bytes[]"},{"name":"extension","type":"bytes"},{"name":"name","type":"bytes"},{"name":"comment","type":"bytes"},{"name":"isSealed","type":"bool"}],"name":"value0","type":"tuple"}
+			]
+		},
+		{
+			"name": "callMedia",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"}
+			],
+			"outputs": [
+				{"components":[{"name":"contents","type":"bytes[]"},{"name":"extension","type":"bytes"},{"name":"name","type":"bytes"},{"name":"comment","type":"bytes"},{"name":"isSealed","type":"bool"}],"name":"value0","type":"tuple"}
+			]
+		},
+		{
+			"name": "getOwnerAddress",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "callOwnerAddress",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "getUploaderPubkey",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"uint256"}
+			]
+		},
+		{
+			"name": "callUploaderPubkey",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"}
+			],
+			"outputs": [
+				{"name":"value0","type":"uint256"}
+			]
+		},
+		{
+			"name": "changeOwner",
+			"inputs": [
+				{"name":"newOwnerAddress","type":"address"}
+			],
+			"outputs": [
+				{"name":"oldAddress","type":"address"},
+				{"name":"newAddress","type":"address"}
+			]
+		},
+		{
+			"name": "callChangeOwner",
+			"inputs": [
+				{"name":"_answer_id","type":"uint32"},
+				{"name":"newOwnerAddress","type":"address"}
+			],
+			"outputs": [
+				{"name":"oldAddress","type":"address"},
+				{"name":"newAddress","type":"address"}
+			]
+		},
+		{
+			"name": "sealMedia",
+			"inputs": [
+				{"name":"extension","type":"bytes"},
+				{"name":"name","type":"bytes"},
+				{"name":"comment","type":"bytes"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "clearMedia",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setMediaPart",
+			"inputs": [
+				{"name":"partNum","type":"uint256"},
+				{"name":"partsTotal","type":"uint256"},
+				{"name":"data","type":"bytes"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setMediaPartExternal",
+			"inputs": [
+				{"name":"partNum","type":"uint256"},
+				{"name":"partsTotal","type":"uint256"},
+				{"name":"data","type":"bytes"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "touch",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		}
+	],
+	"data": [
+		{"key":1,"name":"_collectionName","type":"bytes"},
+		{"key":2,"name":"_tokenCode","type":"cell"}
+	],
+	"events": [
+	]
+}
