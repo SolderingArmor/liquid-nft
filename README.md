@@ -14,9 +14,9 @@ A standard interface for non-fungible tokens.
 
 Standard covers a `Token`, single contract with internal or external media and a `Collection`, a `Token` creator (but not owner) and a logical pattern/specification to group `Tokens`.
 
-`Token` is created as empty vessel, Owner then needs to upload its content and "seal" it to be able to sell or transfer it. This way 16 Kb upload limit to the blockchain (for on-chain media storage) can be surpassed.
+`Token` is created as empty vessel, owner needs to upload its content and "seal" it to be able to sell or transfer it. This way 16 Kb upload limit to the blockchain (for on-chain media storage) can be surpassed.
 
-NOTE: `Collection` is not a wallet, `Collection` aims only to group similar kinds of `Tokens`.
+NOTE: `Collection` is not a wallet, `Collection` aims only to group similar kinds of `Tokens`. Think of it as artist's collection.
 
 # Abstract
 
@@ -30,7 +30,7 @@ A standard interface allows any tokens on Free TON blockchain to be re-used by o
 Comparing to TIP-3 NFT TRC-7:
  * Respects asynchronous nature of Free TON blockchain (includes callbacks and callback getters);
  * Covers only one type of Token instead of 4;
- * Follows "one Token = one Contract" paradigm;
+ * Follows `one Token = one Contract` paradigm;
  * Can have only internal owners;
  * Doesn't require the owner to worry about Token balances (with one exception);
 
@@ -65,8 +65,8 @@ struct nftInfo
 
 
 ``` js
-function  getInfo() external             view         returns (nftInfo);
-function callInfo() external responsible view reserve returns (nftInfo);
+function  getInfo() external             view returns (nftInfo);
+function callInfo() external responsible view returns (nftInfo);
 ```
 
 
@@ -157,6 +157,12 @@ function callCollectionaddress() external responsible view returns (address);
 ```
 
 
+### Events
+
+TODO
+
+
+
 # Collection
 ## Methods
 
@@ -202,6 +208,12 @@ ACCESS: only `Collection` owner;
 ``` js
 function createEmptyNFT(uint256 uploaderPubkey) external returns (address);
 ```
+
+
+### Events
+
+TODO
+
 
 
 ## Implementation
