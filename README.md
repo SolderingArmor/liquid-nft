@@ -1,233 +1,195 @@
----
-tip: 7
-title: TRC-7 NFT Standard
-author: Anton Platonov <anton@platonov.us>, Dmitriy Yankin <d.s.yankin@gmail.com>
-type: Standards Track
-category: TRC
-status: Pending
-created: 2021-07-16
----
+# NFT collection distributor generative art contest
 
-# Simple Summary
+`Author`: Anton Platonov
 
-A standard interface for non-fungible tokens.
+`Telegram`: @SuperArmor
 
-Standard covers a `Token`, single contract with internal or external media and a `Collection`, a `Token` creator (but not owner) and a logical pattern/specification to group `Tokens`.
+`Wallet Address`: 0:cba39007bdb0f025aac0609b25e96a7d2153f06d22fa47b5f6c26cf756b8b2d6
 
-`Token` is created as empty vessel, owner needs to upload its content and "seal" it to be able to sell or transfer it. This way 16 Kb upload limit to the blockchain (for on-chain media storage) can be surpassed.
+`[devnet] DeBot address`: 0:af94ef6c298f00fc74f633c0bc22de53ad24b15624661d8a6e8db2da21b956c1
 
-NOTE: `Collection` is not a wallet, `Collection` aims only to group similar kinds of `Tokens`. Think of it as artist's collection.
+`[devnet] Distributor address`: 0:c7a81f2d3a410e6e0f1b4481cd672f499b1c1f7dffd1432e700215b7435c2d56
 
-# Abstract
+`[devnet] Root token wallet address`: 0:512781620cabfceea0312f848d424f0dd9dc46b14e470e63c7f5744fd6b4bade
 
-The following standard allows for the implementation of a standard API for non-fungible tokens within smart contracts.
-This standard provides basic functionality to transfer and manage tokens.
+`Code:` https://github.com/SolderingArmor/liquid-nft
 
+## Description
 
-# Motivation
+Please refer to `STANDARD.md` file.
 
-A standard interface allows any tokens on Free TON blockchain to be re-used by other applications: from wallets to decentralized exchanges.
-Comparing to TIP-3 NFT TRC-7:
- * Respects asynchronous nature of Free TON blockchain (includes callbacks and callback getters);
- * Covers only one type of Token instead of 4;
- * Follows `one Token = one Contract` paradigm;
- * Can have only internal owners;
- * Doesn't require the owner to worry about Token balances (with one exception);
+## Entities
 
-# Specification
+### LiquidNFT
 
-# Token + Collection
-## Methods
+`LiquidNFT` - Contract that represents a single non-fungible `Token`. Following distributed programming paradigm, one `Token` is one contract. `Token` stores general information and metadata in JSON format. Metadata is always stored on-chain.
 
-**NOTES**:
- - The following specifications use syntax from TON Solidity `0.47.0` (or above)
+`Token` can be of two different types: `Master Edition + Print` and `Normal NFT`.
 
+#### Master Edition
 
-### getInfo
-### callInfo
+A `Master Edition` token, when minted, represents both a non-fungible token on Everscale and metadata that allows creators to control the provenance of prints created from the master edition.
 
-Returns the NFT information using the following structure:
+Rights to create prints are tokenized itself, and the owner of the `Collection` can distribute tokens that allow users to create prints from master editions. Additionally, the creator can set the max supply of the master edition just like a regular mint on Everscale, with the main difference being that each print is a numbered edition created from it.
 
-``` js
-struct nftInfo
-{
-    uint32  dtCreated;
-    address ownerAddress;
-    address authorAddress;
-}
+A notable and desirable effect of master editions is that as prints are sold, the artwork will still remain visible in the artist's wallet as a master edition, while the prints appear in the purchaser's wallets.
+
+#### Print
+
+A print represents a copy of an NFT, and is created from a `Master Edition`. Each print has an edition number associated with it.
+
+#### Normal NFT
+
+A `Normal NFT` when minted represents a non-fungible token on Everscale and metadata, but lacks rights to print. An example of a normal NFT would be an artwork that is a one-of-a-kind that, once sold, is no longer within the artist's own wallet, but is in the purchaser's wallet.
+
+### LiquidNFTCollection
+
+`LiquidNFTCollection` - Contract that represents `Collection` that can mint `Tokens`. 
+
+### Distributor
+
+`Distributor` - Contract that represents a wrapper around `Collection` that allows to control mint process. It can keep any number of pre-uploaded `Tokens` and mint them according to a set of predefined rules like mint price, mint whitelist with mint count limit (when only allowed addresses can mint `Tokens`), mint sale and presale start dates, etc.
+
+## MVP limitations
+
+MVP is not a release version, it has some experimental features, some corners are cut (like currently DeBots are stuck on compiler version 0.47.0) and some non-implemented design ideas exist.
+
+Before it becomes a release it needs to run several rounds of testing.
+
+Here are some of the limitations of current MVP version:
+
+* `DeBot` is hard coded only for one `Distributor`.
+* `Distributor` configuration file accepts only UNIX time as sale start date and presale start date. Human readable format is required.
+* `Distributor` upload is missing progress indicator.
+* `Generator` is not trained to detect duplicate generations, tokens can repeat.
+
+## Running the tests
+
+Requirements:
+
+`Linux/Mac (bash)`
+
+`python` - `3.9+` (including `pip`)
+
+`ton-client-py` - `1.27.0+`
+
+`TON OS SE`
+
+Installing dependencies:
+
+```
+pip install -r requirements.txt
 ```
 
-`dtCreated` - NFT creation date in UNIX time.
+Running test scripts:
 
-`ownerAddress` - Address of the current NFT owner. Can only be another contract's address (Multisig is preferred), can't be external (e.g. Public Key).
-
-`authorAddress` - Address of the NFT creator, can't be changed.
-
-
-``` js
-function  getInfo() external             view returns (nftInfo);
-function callInfo() external responsible view returns (nftInfo);
+```
+cd tests
+./run_tests.py http://127.0.0.1
 ```
 
+Please use the address where your `TON OS SE` is installed.
 
-### getMedia
-### callMedia
+## Running CLI
 
-Returns the NFT information using the following structure:
-
-``` js
-struct nftMedia
-{
-    bytes[] contents;
-    bytes   extension;
-    bytes   name;
-    bytes   comment;
-    bool    isSealed;
-}
+```
+cd tests
+./cli
 ```
 
-`contents` - NFT contents. Either binary file (every array item represents a chunk in binary hex), or arbitrary link/hash to NFT media.
+## Creating a geenerative art collection
 
-`extension` - Type of the contents: extension for binary files (e.g. `gif`, `png`, `mp4` etc.) or type for the link/hash (e.g. `#url`, `#hash`, `#address` etc.).
+`WARNING!` The followng Github repository was used to generate a test collection: https://github.com/HashLips/generative-art-node. All the resources from this repo are used ONLY for educational purposes.
 
-`name` - Name of the token, e.g. `Mona Lisa`.
+All assets are in `tests/assets_raw` folder.
 
-`comment` - Arbitrtary comment of the token.
+Run the script `./generate assets.py` to generate 200 assets in `assets_generated` folder (quantity can be changed on line 75 of the script).
 
-`isSealed` - Sealing means finalizing token contents. Sealed token can't be changed anymore. Sealed token can be transfered to another owner.
+Default metadata is on line 15 of the script.
 
+## Creating a distributor using CLI
 
-``` js
-function  getMedia() external             view returns (nftMedia);
-function callMedia() external responsible view returns (nftMedia);
+`WARNING!` Pinata Cloud is used for IPFS storage here. Free account gives you up to 1 Gb of free space, if you are a jury and you need Pinata access tokens (and you don't want to create an account) please contact me at https://t.me/SuperArmor and I'll give you access to mine.
+
+`WARNING!` Collection was deployed in devnet but whitelist was enabled! If you are a jury and you want to try and mint an NFT please contact me at https://t.me/SuperArmor and I'll include your wallet address to whitelist.
+
+`WARNING!` Assumption is that you run all the scripts from `tests` folder. Please do the following at the beginning:
+
+```
+cd tests
+pip install -r requirements.txt
 ```
 
+1. Initialize Wallet and Distributor configuration:
 
-### getOwnerAddress
-### callOwnerAddress
-
-Returns current owner address.
-
-``` js
-function  getOwnerAddress() external             view returns (address);
-function callOwnerAddress() external responsible view returns (address);
+```
+./cli init
 ```
 
+Please use `--force-wallet` and `--force-distributor` to recreate `Wallet` or `Distributor` respectively.
 
-### changeOwner
-### callChangeOwner
+This will give you information about `Wallet` address. Please top it up with some EVERs. MVP unoptimized version will use ~170 EVERs to upload 10k NFTs, keep that in mind.
 
-Transfers ownership of the NFT to `newOwnerAddress`. NFT needs to have attribute `isSealed` to perform the transfer.
+2. Prepare your assets folder:
 
-ACCESS: only `Token`/`Collection` owner;
+To mint NFTs, your `Distributor` needs to be loaded up with your project's artwork and metadata.
 
-``` js
-function changeOwner    (address newOwnerAddress) external             returns (address oldAddress, address newAddress)
-function callChangeOwner(address newOwnerAddress) external responsible returns (address oldAddress, address newAddress)
+The artwork is generally a collection of .png files and the metadata is a series of .json files that correspond 1:1 for each image in your collection.
+
+Many projects choose to generate their artwork and metadata. This approach is powerful, but also advanced.
+
+A two item collection would contain four files.
+
+```
+0.png
+0.json
+1.png
+1.json
 ```
 
+0.png and 0.json are combined to represent the first NFT in this example collection. 1.png and 1.json describe the second NFT, etc.
 
-### Events
+The content of the image files reflect the artwork you would like to display. The content of the metadata files describe each of these pieces of artwork using the schema defined in the `interfaces/ILiquidNFT.sol` file.
 
-TODO
+3. Change your `Distributor` configuration:
 
+Edit `config.json` file and set your `Distributor` parameters and `Collection` metadata. `Collection` metadata has the same format as `Token` metadata but keeps information about collection, including but not limited to collection name, desctiption, symbol, cover image, etc.
 
-# Token
-## Methods
+4. Upload your assets to IPFS and metadata to blockchain (assuming you are using "assets" folder for assets):
 
-### getTokenID
-### callTokenID
-
-Returns current `Token` ID.
-
-``` js
-function  getTokenID() external             view returns (uint128);
-function callTokenID() external responsible view returns (uint128);
+```
+./cli upload assets
 ```
 
+If the upload is interrupted you can rerun the command and it will start from where it left. Run this command as many times as needed until all your assets and metadatas are uploaded.
 
-### getCollectionAddress
-### callCollectionaddress
+5. Verify uploaded assets (assuming you are using "assets" folder for assets):
 
-Returns `Token's` `Collection` address.
-
-``` js
-function  getCollectionAddress() external             view returns (address);
-function callCollectionaddress() external responsible view returns (address);
+```
+./cli verify assets
 ```
 
+If all is OK you will see something like this:
 
-### Events
-
-TODO
-
-
-
-# Collection
-## Methods
-
-### getTokenCode
-### callTokenCode
-
-Returns `Token's` code.
-
-``` js
-function  getTokenCode() external view             returns (TvmCell);
-function callTokenCode() external responsible view returns (TvmCell);
+```
+Starting verification...
+Verification is SUCCESSFUL!
+50 of 50 assets uploaded correctly.
 ```
 
+6. Finalize Distributor tokens:
 
-### getTokensIssued
-### callTokensIssued
-
-Returns number of issued `Tokens` for this `Collection`.
-
-``` js
-function  getTokensIssued() external view             returns (uint128);
-function callTokensIssued() external responsible view returns (uint128);
+```
+./cli finalize
 ```
 
+If all is OK you will see something like this:
 
-### getCollectionName
-### callCollectionName
-
-Returns `Collection` name.
-
-``` js
-function  getCollectionName() external view             returns (bytes);
-function callCollectionName() external responsible view returns (bytes);
+```
+Locking Distributor Tokens...
+Locking complete!
 ```
 
+Now you can share your Distributor address and call `mint()`!
 
-### createEmptyNFT
-
-Creates empty `Token`; Owner can then upload internal/external media to it and seal it for sale/transfer.
-
-ACCESS: only `Collection` owner;
-
-``` js
-function createEmptyNFT(uint256 uploaderPubkey) external returns (address);
-```
-
-
-### Events
-
-TODO
-
-
-
-## Implementation
-
-Interface is in `interfaces` folder.
-
-`Liquid contracts` `Collection` and `Token` implementation in `contracts` folder.
-
-
-## History
-
-TODO
-
-
-
-## Copyright
-Copyright and related rights waived via [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
+For complete API list please refer to `STANDARD.md` file.

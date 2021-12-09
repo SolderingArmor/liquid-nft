@@ -1,175 +1,174 @@
-pragma ton-solidity >=0.44.0;
+pragma ton-solidity >=0.52.0;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
 pragma AbiHeader expire;
 
 //================================================================================
 //
-struct nftInfo
-{
-    uint32  dtCreated;     //
-    address ownerAddress;  // Current owner;
-    address authorAddress; // Author is never changed;
-}
+// Metadata JSON format:
+// name                - Human readable name of the asset.
+// symbol              - Human readable symbol of the asset (if any).
+// description         - Human readable description of the asset.
+// image               - URL to the image of the asset. PNG, GIF and JPG file formats are supported. 
+//                       You may use the ?ext={file_extension} query to provide information on the file type.
+// animation_url       - URL to a multi-media attachment of the asset. The supported file formats are MP4 and MOV for video, 
+//                       MP3, FLAC and WAV for audio, GLB for AR/3D assets, and HTML for HTML pages. 
+//                       You may use the ?ext={file_extension} query to provide information on the file type.
+// external_url        - URL to an external application or website where users can also view the asset.
+// properties.category - Categories that should be supported by marketplaces:
+//     "image"         - PNG, GIF, JPG;
+//     "video"         - MP4, MOV;
+//     "audio"         - MP3, FLAC, WAV;
+//     "vr"            - 3D models; GLB, GLTF;
+//     "html"          - HTML pages; scripts and relative paths within the HTML page are also supported;
+// properties.files    - Object array, where an object should contain the uri and type of the file that is part of the asset. 
+//                       The type should match the file extension. The array will also include files specified in image and animation_url fields, 
+//                       and any other that are associated with the asset. You may use the ?ext={file_extension} query to provide information on the file type.
+// attributes          - Object array, where an object should contain trait_type and value fields. value can be a string or a number.
+//
+// EXAMPLE:
+//{
+//    "name": "Everscale NFT",
+//    "symbol": "",
+//    "description": "Never gonna give you up!",
+//    "image": "https://gateway.pinata.cloud/ipfs/QmYoiSjZUotKiYhMfzUSRWYTZUDq6MCCkXAbDPdC2TbdpU?ext=png",
+//    "animation_url": "https://gateway.pinata.cloud/ipfs/QmRsAMWEmpRHT1K1dj2q4L6ccAHpgrvzHiuCVwSWxmvV7S?ext=mp4",
+//    "external_url": "https://freeton.org",
+//    "attributes": [
+//        {
+//            "trait_type": "Background",
+//            "value": "Green"
+//        },
+//        {
+//            "trait_type": "Foot",
+//            "value": "Right"
+//        },
+//        {
+//            "trait_type": "Rick",
+//            "value": "Roll"
+//        }
+//    ],
+//    "collection": {
+//        "name": "Everscale NFT",
+//        "family": "Everscale NFTs from SA"
+//    },
+//    "properties": {
+//        "files": [
+//            {
+//                "uri": "https://gateway.pinata.cloud/ipfs/QmYoiSjZUotKiYhMfzUSRWYTZUDq6MCCkXAbDPdC2TbdpU",
+//                "type": "image/png"
+//            }
+//        ],
+//        "category": "image"
+//    }
+//}
 
-struct nftMedia
+//================================================================================
+// Structure representing NFT creator share, in a perfect world creators get their
+// part of every sale and this one defines the amount each creator gets.
+//
+struct CreatorShare
 {
-    bytes[] contents;  // Binary file in HEX;    
-    bytes   extension; // File extension in a format of a mime-type e.g. "image/gif" or "image/png";
-                       // For external media there are several ways of whowing the file, like hashsum or external link (why not?), and there are not mime types 
-                       // for that kind of data (they both fall under "text/plain"), thus we suggest adding "text/hash" and "text/url" to standard mime-types,
-                       // it will help distinguish plain text from hashes and URLs when parsing;
-    bytes   name;      // (optional) NFT name,    author gives NFT a name    when created;
-    bytes   comment;   // (optional) NFT comment, author gives NFT a comment when created;
-    bool    isSealed;  // If the media is in the process of being changed or this NFT is final;
+    address creatorAddress; // 
+    uint8   creatorShare;   // 1 = 1% share
 }
 
 //================================================================================
 //
-abstract contract ILiquidNFT
+interface ILiquidNFT
 {
     //========================================
-    // Constants
-    address constant addressZero = address.makeAddrStd(0, 0);
-
-    //========================================
-    // Error codes
-    uint constant ERROR_MESSAGE_SENDER_IS_NOT_MY_OWNER       = 100;
-    uint constant ERROR_MESSAGE_SENDER_IS_NOT_MY_ROOT        = 101;
-    uint constant ERROR_MESSAGE_SENDER_IS_NOT_MY_UPLOADER    = 102;
-    uint constant ERROR_MESSAGE_SENDER_IS_NOT_EXTERNAL_MEDIA = 103;
-    uint constant ERROR_MESSAGE_OWNER_CAN_NOT_BE_ZERO        = 104;
-    uint constant ERROR_NOT_ENOUGH_BALANCE                   = 201;
-    uint constant ERROR_MEDIA_IS_SEALED                      = 202;
-    uint constant ERROR_MEDIA_IS_NOT_SEALED                  = 203;
-    uint constant ERROR_PART_OUT_OF_RANGE                    = 204;
-    uint constant ERROR_POTENTIAL_OUT_OF_GAS                 = 205;
-
-    //========================================
-    // Variables
-    nftInfo  _info;           //
-    nftMedia _media;          //
-    uint256  _uploaderPubkey; //
-
-    //========================================
-    // Modifiers
-    function _reserve() internal inline view {    tvm.rawReserve(gasToValue(10000, address(this).wid), 0);    }
-
-    modifier onlyOwner   {    require(msg.isInternal && _info.ownerAddress == msg.sender && _info.ownerAddress != addressZero, ERROR_MESSAGE_SENDER_IS_NOT_MY_OWNER);       _;    }
-    modifier onlyUploader{    require(msg.isExternal && msg.pubkey() == _uploaderPubkey  && _uploaderPubkey    != 0,           ERROR_MESSAGE_SENDER_IS_NOT_MY_UPLOADER);    _;    }
-    modifier isSealed    {    require(_media.isSealed == true,  ERROR_MEDIA_IS_NOT_SEALED);    _;    }
-    modifier isNotSealed {    require(_media.isSealed == false, ERROR_MEDIA_IS_SEALED    );    _;    }
-    modifier reserve     {    _reserve();    _;                                                      }
-    modifier returnChange{                   _; msg.sender.transfer(0, true, 128);                   }
-
-    //========================================
-    // Getters
-    function  getInfo()           external             view         returns (nftInfo)  {    return                      (_info );             }
-    function callInfo()           external responsible view reserve returns (nftInfo)  {    return {value: 0, flag: 128}(_info );             }
-    function  getMedia()          external             view         returns (nftMedia) {    return                      (_media);             }
-    function callMedia()          external responsible view reserve returns (nftMedia) {    return {value: 0, flag: 128}(_media);             }
-    function  getOwnerAddress()   external             view         returns (address)  {    return                      (_info.ownerAddress); }
-    function callOwnerAddress()   external responsible view reserve returns (address)  {    return {value: 0, flag: 128}(_info.ownerAddress); }
-    function  getUploaderPubkey() external             view         returns (uint256)  {    return                      (_uploaderPubkey);    }
-    function callUploaderPubkey() external responsible view reserve returns (uint256)  {    return {value: 0, flag: 128}(_uploaderPubkey);    }
-
-    //========================================
+    /// @notice Returns NFT information;
+    ///
+    /// @param includeMetadata - If metadata should be included;
+    ///
+    /// Return values:
+    ///     collectionAddress        - Token collection address;
+    ///     tokenID                  - Token ID;
+    ///     ownerAddress             - NFT owner;
+    ///     creatorAddress           - NFT creator;
+    ///     primarySaleHappened      - If 100% of the first sale should be distributed between the creators list;
+    ///     metadataContents         - Token metadata in JSON format;
+    ///     metadataIsMutable        - Boolean if metadata is mutable and can be changed;
+    ///     metadataAuthorityAddress - Address of an authority who can update metadata (if it is mutable);
+    ///     masterEditionSupply      - Current amount of copies if the token can be printed;
+    ///     masterEditionMaxSupply   - Maximum amount of copies if the token can be printed;
+    ///     masterEditionPrintLocked - If print is available or locked;
+    ///     editionNumber            - Master edition (original token) always has `editionNumber` = 0, printed versions have 1+;
+    ///     creatorsPercent          - Defines how many percent creators get when NFT is sold on a secondary market;
+    ///     creatorsShares           - Defines a list of creators with their shares;
     //
-    function changeOwner(address newOwnerAddress) external onlyOwner isSealed reserve returnChange returns (address oldAddress, address newAddress)
-    {
-        oldAddress = _info.ownerAddress;
-        _info.ownerAddress = newOwnerAddress;
+    function getInfo(bool includeMetadata) external view returns (address        collectionAddress,
+                                                                  uint256        tokenID,
+                                                                  address        ownerAddress,
+                                                                  address        creatorAddress,
+                                                                  bool           primarySaleHappened,
+                                                                  string         metadataContents,
+                                                                  bool           metadataIsMutable,
+                                                                  address        metadataAuthorityAddress,
+                                                                  uint256        masterEditionSupply,
+                                                                  uint256        masterEditionMaxSupply,
+                                                                  bool           masterEditionPrintLocked,
+                                                                  uint256        editionNumber,
+                                                                  uint16         creatorsPercent,
+                                                                  CreatorShare[] creatorsShares);
 
-        return (oldAddress, newOwnerAddress);
-    }
-
-    function callChangeOwner(address newOwnerAddress) external responsible onlyOwner isSealed returns (address oldAddress, address newAddress)
-    {
-        _reserve();
-        oldAddress = _info.ownerAddress;
-        _info.ownerAddress = newOwnerAddress;
-
-        // Return the change
-        return {value: 0, flag: 128}(oldAddress, newOwnerAddress);
-    }
-
-    //========================================
-    //
-    function sealMedia(bytes extension, bytes name, bytes comment) external onlyOwner isNotSealed
-    {
-        _media.extension = extension;
-        _media.name      = name;
-        _media.comment   = comment;
-        _uploaderPubkey  = 0;
-        _media.isSealed  = true;
-    }
-
-    //========================================
-    //
-    function _populateInfo(address ownerAddress, uint32 dtCreated) internal
-    {
-        _info.ownerAddress  = ownerAddress;
-        _info.authorAddress = ownerAddress;
-        _info.dtCreated     = dtCreated;
-    }
+    function callInfo(bool includeMetadata) external responsible view returns (address        collectionAddress,
+                                                                               uint256        tokenID,
+                                                                               address        ownerAddress,
+                                                                               address        creatorAddress,
+                                                                               bool           primarySaleHappened,
+                                                                               string         metadataContents,
+                                                                               bool           metadataIsMutable,
+                                                                               address        metadataAuthorityAddress,
+                                                                               uint256        masterEditionSupply,
+                                                                               uint256        masterEditionMaxSupply,
+                                                                               bool           masterEditionPrintLocked,
+                                                                               uint256        editionNumber,
+                                                                               uint16         creatorsPercent,
+                                                                               CreatorShare[] creatorsShares);
 
     //========================================
+    /// @notice Changes NFT owner;
+    ///
+    /// @param ownerAddress - New owner address;
     //
-    function clearMedia() external
-    {
-        delete _media.contents;
-    }
-
+    function changeOwner(address ownerAddress) external;
+    
     //========================================
+    /// @notice Changes NFT owner and flips `primarySaleHappened` flag to `true`;
+    ///
+    /// @param ownerAddress - New owner address;
     //
-    function _setMediaPart(uint256 partNum, uint256 partsTotal, bytes data) internal
-    {
-        if(partNum > _media.contents.length && (partNum - _media.contents.length) > 50)
-        {
-            revert(ERROR_POTENTIAL_OUT_OF_GAS);
-        }
-
-        while(_media.contents.length <= partNum && _media.contents.length <= partsTotal)
-        {
-            _media.contents.push("");
-        }
-
-        _media.contents[partNum] = data;
-    }
-
+    function changeOwnerWithPrimarySale(address ownerAddress) external;
+    
     //========================================
+    /// @notice Changes NFT metadata if `metadataIsMutable` is `true`;
+    ///
+    /// @param metadataContents - New metadata in JSON format;
     //
-    function setMediaPart(uint256 partNum, uint256 partsTotal, bytes data) external onlyOwner isNotSealed reserve returnChange
-    {
-        _setMediaPart(partNum, partsTotal, data);
-    }
-
+    function updateMetadata(string metadataContents) external;
+    
     //========================================
+    /// @notice Locks NFT metadata;
     //
-    function setMediaPartExternal(uint256 partNum, uint256 partsTotal, bytes data) external onlyUploader isNotSealed
-    {
-        tvm.accept();
-        _setMediaPart(partNum, partsTotal, data);
-    }
-
-    // Function with predefined name which is used to replace custom replay protection.
-    function afterSignatureCheck(TvmSlice body, TvmCell message) private inline pure returns (TvmSlice) 
-    {
-        message.depth(); // Shut the warning about unused variable;
-                         // We don't care because the only external function is uploading media and we don't want 
-                         // to have limits on that because only owner can do that, it's his TONs;
-
-        body.decode(uint64); // timestamp
-        body.decode(uint32); // dt
-
-        return body;
-    }
-
-
+    function lockMetadata() external;
+    
     //========================================
+    /// @notice Prints a copy of the NFT;
+    ///         Sometimes when you need multiple copies of the same NFT you can.. well..
+    ///         create multiple copies of the same NFT (like coins or medals etc.) 
+    ///         and they will technically different NFTs but at the same time logically 
+    ///         they will be the same. Printing allows you to have multiple copies of the 
+    ///         same NFT (with the same `tokenID`) distributed to any number of people. Every
+    ///         one of them will be able to sell or transfer their own copy.
     //
-    function touch() external view onlyOwner reserve returnChange
-    { }
+    function printCopy(address targetOwnerAddress) external;
+    
+    //========================================
+    /// @notice Locks NFT printing;
+    //
+    function lockPrint() external;
 }
 
 //================================================================================
