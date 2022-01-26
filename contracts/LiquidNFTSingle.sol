@@ -10,7 +10,7 @@ import "../interfaces/ILiquidNFT.sol";
 
 //================================================================================
 //
-contract LiquidNFT is ILiquidNFT, IBase
+contract LiquidNFTSingle is ILiquidNFT, IBase
 {
     //========================================
     // Error codes
@@ -35,8 +35,7 @@ contract LiquidNFT is ILiquidNFT, IBase
 
     //========================================
     // Variables
-    address static _collectionAddress;        //
-    uint256 static _tokenID;                  //
+    uint256 static _nonce;                    //
     // Addresses
     address        _ownerAddress;             //
     address        _creatorAddress;           // Creation initiator address (buyer in case of Distributor usage)
@@ -59,11 +58,9 @@ contract LiquidNFT is ILiquidNFT, IBase
 
     //========================================
     // Modifiers
-    function senderIsCollection() internal view inline returns (bool) {    return _checkSenderAddress(_collectionAddress);    }
-    function senderIsMaster()     internal view inline returns (bool) {    (address master, ) = calculateFutureNFTAddress(_tokenID, 0);    return _checkSenderAddress(master);    }
+    function senderIsMaster()     internal view inline returns (bool) {    (address master, ) = calculateFutureNFTAddress(0);    return _checkSenderAddress(master);    }
 
     modifier onlyMaster     {    require(senderIsMaster(),                                ERROR_MESSAGE_SENDER_IS_NOT_MY_MASTER);        _;    }
-    modifier onlyCollection {    require(_checkSenderAddress(_collectionAddress),         ERROR_MESSAGE_SENDER_IS_NOT_MY_COLLECTION);    _;    }
     modifier onlyOwner      {    require(_checkSenderAddress(_ownerAddress),              ERROR_MESSAGE_SENDER_IS_NOT_MY_OWNER);         _;    }
     modifier onlyCreator    {    require(_checkSenderAddress(_creatorAddress),            ERROR_MESSAGE_SENDER_IS_NOT_MY_COLLECTION);    _;    }
     modifier onlyAuthority  {    require(_checkSenderAddress(_metadataAuthorityAddress),  ERROR_MESSAGE_SENDER_IS_NOT_MY_AUTHORITY);     _;    }
@@ -85,8 +82,8 @@ contract LiquidNFT is ILiquidNFT, IBase
                                                                            uint16         creatorsPercent,
                                                                            CreatorShare[] creatorsShares)
     {
-        collectionAddress        = _collectionAddress;
-        tokenID                  = _tokenID;
+        collectionAddress        = addressZero;
+        tokenID                  = 0;
         ownerAddress             = _ownerAddress;
         creatorAddress           = _creatorAddress;
         primarySaleHappened      = _primarySaleHappened;
@@ -116,8 +113,8 @@ contract LiquidNFT is ILiquidNFT, IBase
                                                                                                 uint16         creatorsPercent,
                                                                                                 CreatorShare[] creatorsShares)
     {
-        return {value: 0, flag: 128}(_collectionAddress,
-                                     _tokenID,
+        return {value: 0, flag: 128}(addressZero,
+                                     0,
                                      _ownerAddress,
                                      _creatorAddress,
                                      _primarySaleHappened,
@@ -134,14 +131,13 @@ contract LiquidNFT is ILiquidNFT, IBase
 
     //========================================
     //
-    function calculateFutureNFTAddress(uint256 tokenID, uint256 editionNumber) private inline view returns (address, TvmCell)
+    function calculateFutureNFTAddress(uint256 editionNumber) private inline view returns (address, TvmCell)
     {
         TvmCell stateInit = tvm.buildStateInit({
-            contr: LiquidNFT,
+            contr: LiquidNFTSingle,
             varInit: {
-                _collectionAddress: _collectionAddress,
-                _tokenID:           tokenID,
-                _editionNumber:     editionNumber
+                _nonce:         _nonce,
+                _editionNumber: editionNumber
             },
             code: tvm.code()
         });
@@ -162,10 +158,10 @@ contract LiquidNFT is ILiquidNFT, IBase
                 uint16         creatorsPercent,
                 CreatorShare[] creatorsShares) public reserve
     {
-        // Checking who is printing or creating, it should be collection or master copy
+        // Checking who is printing or creating, it should be any or master copy
         if(_editionNumber == 0)
         {
-            require(senderIsCollection(), ERROR_MESSAGE_SENDER_IS_NOT_MY_COLLECTION);
+            tvm.accept();
 
             _masterEditionSupply      = 0;
             _masterEditionMaxSupply   = masterEditionMaxSupply;
@@ -249,19 +245,19 @@ contract LiquidNFT is ILiquidNFT, IBase
                 _masterEditionMaxSupply > _masterEditionSupply, ERROR_MESSAGE_PRINT_SUPPLY_EXCEEDED);
         
         _masterEditionSupply += 1;
-        (address addr, TvmCell stateInit) = calculateFutureNFTAddress(_tokenID, _masterEditionSupply);
+        (address addr, TvmCell stateInit) = calculateFutureNFTAddress(_masterEditionSupply);
         emit copyPrinted(_masterEditionSupply, addr);
 
-        new LiquidNFT{value: 0, flag: 128, stateInit: stateInit}(targetOwnerAddress,
-                                                                 _creatorAddress,
-                                                                 _primarySaleHappened,
-                                                                 _metadataContents,
-                                                                 _metadataIsMutable,
-                                                                 _metadataAuthorityAddress,
-                                                                 0,
-                                                                 true,
-                                                                 _creatorsPercent,
-                                                                 _creatorsShares);
+        new LiquidNFTSingle{value: 0, flag: 128, stateInit: stateInit}(targetOwnerAddress,
+                                                                       _creatorAddress,
+                                                                       _primarySaleHappened,
+                                                                       _metadataContents,
+                                                                       _metadataIsMutable,
+                                                                       _metadataAuthorityAddress,
+                                                                       0,
+                                                                       true,
+                                                                       _creatorsPercent,
+                                                                       _creatorsShares);
     }
 
     //========================================

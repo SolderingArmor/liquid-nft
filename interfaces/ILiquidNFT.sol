@@ -161,7 +161,7 @@ interface ILiquidNFT
     ///         and they will technically different NFTs but at the same time logically 
     ///         they will be the same. Printing allows you to have multiple copies of the 
     ///         same NFT (with the same `tokenID`) distributed to any number of people. Every
-    ///         one of them will be able to sell or transfer their own copy.
+    ///         one of them will be able to sell or transfer their own copy;
     //
     function printCopy(address targetOwnerAddress) external;
     
@@ -169,6 +169,12 @@ interface ILiquidNFT
     /// @notice Locks NFT printing;
     //
     function lockPrint() external;
+    
+    //========================================
+    /// @notice Destroys NFT;
+    ///         WARNING! This can not be undone;
+    //
+    function destroy() external;
 }
 
 //================================================================================

@@ -133,6 +133,7 @@ contract LiquidNFTCollection is IBase, ILiquidNFTCollection
                 uint16         tokenCreatorsPercent,
                 CreatorShare[] tokenCreatorsShares) public
     {
+        if(msg.isExternal){    tvm.accept();    }
         require(ownerAddress != addressZero,      ERROR_MESSAGE_OWNER_CAN_NOT_BE_ZERO);
         require(tokenCreatorsShares.length <= 5,  ERROR_MESSAGE_TOO_MANY_CREATORS    );
 
@@ -165,10 +166,16 @@ contract LiquidNFTCollection is IBase, ILiquidNFTCollection
 
     //========================================
     //
-    function createNFT(address ownerAddress,
-                       address creatorAddress,
-                       string  metadataContents,
-                       address metadataAuthorityAddress) external override onlyOwner reserve returns (address tokenAddress)
+    function _createNFT(address        ownerAddress,
+                        address        creatorAddress,
+                        bool           primarySaleHappened,
+                        string         metadataContents,
+                        bool           metadataIsMutable,
+                        address        metadataAuthorityAddress,
+                        uint256        masterEditionMaxSupply,
+                        bool           masterEditionPrintLocked,
+                        uint16         creatorsPercent,
+                        CreatorShare[] creatorsShares) internal returns (address)
     {
         require(msg.value >= gasToValue(400000, address(this).wid), ERROR_VALUE_NOT_ENOUGH_TO_MINT); // TODO: adjust value
 
@@ -177,18 +184,63 @@ contract LiquidNFTCollection is IBase, ILiquidNFTCollection
 
         new LiquidNFT{value: 0, flag: 128, stateInit: stateInit}(ownerAddress,
                                                                  creatorAddress,
-                                                                 _tokenPrimarySaleHappened,
+                                                                 primarySaleHappened,
                                                                  metadataContents,
-                                                                 _tokenMetadataIsMutable,
+                                                                 metadataIsMutable,
                                                                  metadataAuthorityAddress,
-                                                                 _tokenMasterEditionMaxSupply,
-                                                                 _tokenMasterEditionPrintLocked,
-                                                                 _tokenCreatorsPercent,
-                                                                 _tokenCreatorsShares);
+                                                                 masterEditionMaxSupply,
+                                                                 masterEditionPrintLocked,
+                                                                 creatorsPercent,
+                                                                 creatorsShares);
         _tokensIssued += 1;
         return addr;
     }
-    
+
+    //========================================
+    //
+    function createNFT(address ownerAddress,
+                       address creatorAddress,
+                       string  metadataContents,
+                       address metadataAuthorityAddress) external override onlyOwner reserve returns (address tokenAddress)
+    {
+       tokenAddress = _createNFT(ownerAddress,
+                                 creatorAddress,
+                                 _tokenPrimarySaleHappened,
+                                 metadataContents,
+                                 _tokenMetadataIsMutable,
+                                 metadataAuthorityAddress,
+                                 _tokenMasterEditionMaxSupply,
+                                 _tokenMasterEditionPrintLocked,
+                                 _tokenCreatorsPercent,
+                                 _tokenCreatorsShares);
+    }
+
+    //========================================
+    //
+    function createNFTExtended(address        ownerAddress,
+                               address        creatorAddress,
+                               bool           primarySaleHappened,
+                               string         metadataContents,
+                               bool           metadataIsMutable,
+                               address        metadataAuthorityAddress,
+                               uint256        masterEditionMaxSupply,
+                               bool           masterEditionPrintLocked,
+                               uint16         creatorsPercent,
+                               CreatorShare[] creatorsShares) external override onlyOwner reserve returns (address tokenAddress)
+    {
+        tokenAddress = _createNFT(ownerAddress,
+                                  creatorAddress,
+                                  primarySaleHappened,
+                                  metadataContents,
+                                  metadataIsMutable,
+                                  metadataAuthorityAddress,
+                                  masterEditionMaxSupply,
+                                  masterEditionPrintLocked,
+                                  creatorsPercent,
+                                  creatorsShares);
+
+    }
+
     //========================================
     //    
     function changeOwner(address ownerAddress) external override onlyOwner reserve returnChange

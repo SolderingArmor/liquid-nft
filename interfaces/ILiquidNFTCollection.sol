@@ -25,6 +25,31 @@ interface ILiquidNFTCollection
                        address metadataAuthorityAddress) external returns (address tokenAddress);
     
     //========================================
+    /// @notice Creates new NFT, extended version with all parameters;
+    ///
+    /// @param ownerAddress             - New owner address;
+    /// @param creatorAddress           - Creator   address;
+    /// @param primarySaleHappened      - If 100% of the first sale should be distributed between the creators list;
+    /// @param metadataContents         - Metadata in JSON format (see `ILiquidNFT.sol`);
+    /// @param metadataIsMutable        - If metadata can be changed by authority;
+    /// @param metadataAuthorityAddress - Metadata authority that can update metadata if needed;
+    /// @param masterEditionMaxSupply   - >0 if token should be printable;
+    /// @param masterEditionPrintLocked - If printing is locked for this token;
+    /// @param creatorsPercent          - Secondary market sale percent that creators receive after each trade;
+    /// @param creatorsShares           - List of creators with their shares;
+    //
+    function createNFTExtended(address        ownerAddress,
+                               address        creatorAddress,
+                               bool           primarySaleHappened,
+                               string         metadataContents,
+                               bool           metadataIsMutable,
+                               address        metadataAuthorityAddress,
+                               uint256        masterEditionMaxSupply,
+                               bool           masterEditionPrintLocked,
+                               uint16         creatorsPercent,
+                               CreatorShare[] creatorsShares) external returns (address tokenAddress);
+
+    //========================================
     /// @notice Changes collection owner;
     ///
     /// @param ownerAddress - New owner address;

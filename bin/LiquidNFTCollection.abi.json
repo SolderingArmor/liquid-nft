@@ -75,6 +75,24 @@
 			]
 		},
 		{
+			"name": "createNFTExtended",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"},
+				{"name":"creatorAddress","type":"address"},
+				{"name":"primarySaleHappened","type":"bool"},
+				{"name":"metadataContents","type":"string"},
+				{"name":"metadataIsMutable","type":"bool"},
+				{"name":"metadataAuthorityAddress","type":"address"},
+				{"name":"masterEditionMaxSupply","type":"uint256"},
+				{"name":"masterEditionPrintLocked","type":"bool"},
+				{"name":"creatorsPercent","type":"uint16"},
+				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint8"}],"name":"creatorsShares","type":"tuple[]"}
+			],
+			"outputs": [
+				{"name":"tokenAddress","type":"address"}
+			]
+		},
+		{
 			"name": "changeOwner",
 			"inputs": [
 				{"name":"ownerAddress","type":"address"}
