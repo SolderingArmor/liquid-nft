@@ -22,7 +22,8 @@ abstract contract IBase
 
     function _reserve() internal inline view {    tvm.rawReserve(gasToValue(_gasReserve, address(this).wid), 0);    }
     modifier  reserve     {    if(msg.isInternal){ _reserve(); }    _;                                       }
-    modifier  returnChange{                   _;  if(msg.isInternal){ msg.sender.transfer(0, true, 128); }   }
+    modifier  returnChange                {                   _;  if(msg.isInternal){ msg.sender.transfer(0, true, 128); }   }
+    modifier  returnChangeTo(address dest){                   _;  if(msg.isInternal){       dest.transfer(0, true, 128); }   }
 }
 
 //================================================================================

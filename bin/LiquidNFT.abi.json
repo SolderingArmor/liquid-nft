@@ -142,10 +142,10 @@
 			]
 		},
 		{
-			"name": "copyPrinted",
+			"name": "printCreated",
 			"inputs": [
-				{"name":"copyID","type":"uint256"},
-				{"name":"copyAddress","type":"address"}
+				{"name":"printID","type":"uint256"},
+				{"name":"printAddress","type":"address"}
 			],
 			"outputs": [
 			]

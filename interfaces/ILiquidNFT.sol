@@ -78,6 +78,12 @@ struct CreatorShare
 interface ILiquidNFT
 {
     //========================================
+    // Events
+    event ownerChanged(address oldOwnerAddress, address newOwnerAddress);
+    event metadataUpdated();
+    event printCreated(uint256 printID, address printAddress);
+
+    //========================================
     /// @notice Returns NFT information;
     ///
     /// @param includeMetadata - If metadata should be included;
