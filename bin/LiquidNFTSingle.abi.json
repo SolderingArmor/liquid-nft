@@ -15,7 +15,7 @@
 				{"name":"masterEditionMaxSupply","type":"uint256"},
 				{"name":"masterEditionPrintLocked","type":"bool"},
 				{"name":"creatorsPercent","type":"uint16"},
-				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint8"}],"name":"creatorsShares","type":"tuple[]"}
+				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"creatorsShares","type":"tuple[]"}
 			],
 			"outputs": [
 			]
@@ -39,7 +39,7 @@
 				{"name":"masterEditionPrintLocked","type":"bool"},
 				{"name":"editionNumber","type":"uint256"},
 				{"name":"creatorsPercent","type":"uint16"},
-				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint8"}],"name":"creatorsShares","type":"tuple[]"}
+				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"creatorsShares","type":"tuple[]"}
 			]
 		},
 		{
@@ -62,7 +62,7 @@
 				{"name":"masterEditionPrintLocked","type":"bool"},
 				{"name":"editionNumber","type":"uint256"},
 				{"name":"creatorsPercent","type":"uint16"},
-				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint8"}],"name":"creatorsShares","type":"tuple[]"}
+				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"creatorsShares","type":"tuple[]"}
 			]
 		},
 		{
@@ -167,6 +167,6 @@
 		{"name":"_masterEditionPrintLocked","type":"bool"},
 		{"name":"_editionNumber","type":"uint256"},
 		{"name":"_creatorsPercent","type":"uint16"},
-		{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint8"}],"name":"_creatorsShares","type":"tuple[]"}
+		{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"_creatorsShares","type":"tuple[]"}
 	]
 }

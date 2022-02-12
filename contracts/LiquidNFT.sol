@@ -177,12 +177,12 @@ contract LiquidNFT is ILiquidNFT, IBase
 
         require(creatorsShares.length <= 5, ERROR_MESSAGE_TOO_MANY_CREATORS);
 
-        uint8 shareSum = 0;
+        uint16 shareSum = 0;
         for(CreatorShare shareInfo : creatorsShares)
         {
             shareSum += shareInfo.creatorShare;
         }
-        require(shareSum == 100, ERROR_MESSAGE_SHARE_NOT_EQUAL_100);
+        require(shareSum == 10000, ERROR_MESSAGE_SHARE_NOT_EQUAL_100);
 
         _ownerAddress             = ownerAddress;
         _creatorAddress           = creatorAddress;

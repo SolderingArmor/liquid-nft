@@ -70,7 +70,7 @@ pragma AbiHeader expire;
 struct CreatorShare
 {
     address creatorAddress; // 
-    uint8   creatorShare;   // 1 = 1% share
+    uint16  creatorShare;   // 100 = 1% share
 }
 
 //================================================================================

@@ -14,7 +14,7 @@
 				{"name":"tokenMasterEditionMaxSupply","type":"uint256"},
 				{"name":"tokenMasterEditionPrintLocked","type":"bool"},
 				{"name":"tokenCreatorsPercent","type":"uint16"},
-				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint8"}],"name":"tokenCreatorsShares","type":"tuple[]"}
+				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"tokenCreatorsShares","type":"tuple[]"}
 			],
 			"outputs": [
 			]
@@ -37,7 +37,7 @@
 				{"name":"tokenMasterEditionMaxSupply","type":"uint256"},
 				{"name":"tokenMasterEditionPrintLocked","type":"bool"},
 				{"name":"tokenCreatorsPercent","type":"uint16"},
-				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint8"}],"name":"tokenCreatorsShares","type":"tuple[]"}
+				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"tokenCreatorsShares","type":"tuple[]"}
 			]
 		},
 		{
@@ -59,7 +59,7 @@
 				{"name":"tokenMasterEditionMaxSupply","type":"uint256"},
 				{"name":"tokenMasterEditionPrintLocked","type":"bool"},
 				{"name":"tokenCreatorsPercent","type":"uint16"},
-				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint8"}],"name":"tokenCreatorsShares","type":"tuple[]"}
+				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"tokenCreatorsShares","type":"tuple[]"}
 			]
 		},
 		{
@@ -86,7 +86,7 @@
 				{"name":"masterEditionMaxSupply","type":"uint256"},
 				{"name":"masterEditionPrintLocked","type":"bool"},
 				{"name":"creatorsPercent","type":"uint16"},
-				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint8"}],"name":"creatorsShares","type":"tuple[]"}
+				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"creatorsShares","type":"tuple[]"}
 			],
 			"outputs": [
 				{"name":"tokenAddress","type":"address"}
@@ -132,6 +132,6 @@
 		{"name":"_tokenMasterEditionMaxSupply","type":"uint256"},
 		{"name":"_tokenMasterEditionPrintLocked","type":"bool"},
 		{"name":"_tokenCreatorsPercent","type":"uint16"},
-		{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint8"}],"name":"_tokenCreatorsShares","type":"tuple[]"}
+		{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"_tokenCreatorsShares","type":"tuple[]"}
 	]
 }

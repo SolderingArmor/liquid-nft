@@ -72,7 +72,7 @@ Return values:
 struct CreatorShare
 {
     address creatorAddress; // 
-    uint8   creatorShare;   // 1 = 1% share
+    uint16  creatorShare;   // 100 = 1% share
 }
 
 function getInfo(bool includeMetadata) external view returns (
@@ -257,7 +257,7 @@ Return values:
 struct CreatorShare
 {
     address creatorAddress; // 
-    uint8   creatorShare;   // 100 = 1% share
+    uint16  creatorShare;   // 100 = 1% share
 }
 
 function getInfo(bool includeMetadata, bool includeTokenCode) external view returns(
@@ -341,7 +341,7 @@ Creates new NFT, extended version with all parameters.
 struct CreatorShare
 {
     address creatorAddress; // 
-    uint8   creatorShare;   // 1 = 1% share
+    uint16  creatorShare;   // 100 = 1% share
 }
 
 function createNFTExtended(

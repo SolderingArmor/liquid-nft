@@ -137,12 +137,12 @@ contract LiquidNFTCollection is IBase, ILiquidNFTCollection
         require(ownerAddress != addressZero,      ERROR_MESSAGE_OWNER_CAN_NOT_BE_ZERO);
         require(tokenCreatorsShares.length <= 5,  ERROR_MESSAGE_TOO_MANY_CREATORS    );
 
-        uint8 shareSum = 0;
+        uint16 shareSum = 0;
         for(CreatorShare shareInfo : tokenCreatorsShares)
         {
             shareSum += shareInfo.creatorShare;
         }
-        require(shareSum == 100, ERROR_MESSAGE_SHARE_NOT_EQUAL_100);
+        require(shareSum == 10000, ERROR_MESSAGE_SHARE_NOT_EQUAL_100);
 
         _reserve();
 
