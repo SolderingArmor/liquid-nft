@@ -28,12 +28,6 @@ contract LiquidNFT is ILiquidNFT, IBase
     uint constant ERROR_MESSAGE_SHARE_NOT_EQUAL_100          = 206;
 
     //========================================
-    // Events
-    event ownerChanged(address oldOwnerAddress, address newOwnerAddress);
-    event metadataUpdated();
-    event copyPrinted(uint256 copyID, address copyAddress);
-
-    //========================================
     // Variables
     address static _collectionAddress;        //
     uint256 static _tokenID;                  //
@@ -205,7 +199,7 @@ contract LiquidNFT is ILiquidNFT, IBase
     
     //========================================
     //    
-    function changeOwner(address ownerAddress) external override onlyOwner reserve returnChange
+    function setOwner(address ownerAddress) external override onlyOwner reserve returnChange
     {
         emit ownerChanged(_ownerAddress, ownerAddress);
         _ownerAddress = ownerAddress;
@@ -213,7 +207,7 @@ contract LiquidNFT is ILiquidNFT, IBase
     
     //========================================
     //    
-    function changeOwnerWithPrimarySale(address ownerAddress) external override onlyOwner reserve returnChange
+    function setOwnerWithPrimarySale(address ownerAddress) external override onlyOwner reserve returnChange
     {
         emit ownerChanged(_ownerAddress, ownerAddress);
         _ownerAddress = ownerAddress;
@@ -222,11 +216,11 @@ contract LiquidNFT is ILiquidNFT, IBase
 
     //========================================
     //    
-    function updateMetadata(string metadataContents) external override onlyAuthority reserve returnChange
+    function setMetadata(string metadataContents) external override onlyAuthority reserve returnChange
     {
         require(_metadataIsMutable, ERROR_MESSAGE_METADATA_IS_LOCKED);
         _metadataContents = metadataContents;
-        emit metadataUpdated();
+        emit metadataChanged();
     }
 
     //========================================
@@ -250,7 +244,7 @@ contract LiquidNFT is ILiquidNFT, IBase
         
         _masterEditionSupply += 1;
         (address addr, TvmCell stateInit) = calculateFutureNFTAddress(_tokenID, _masterEditionSupply);
-        emit copyPrinted(_masterEditionSupply, addr);
+        emit printCreated(_masterEditionSupply, addr);
 
         new LiquidNFT{value: 0, flag: 128, stateInit: stateInit}(targetOwnerAddress,
                                                                  _creatorAddress,

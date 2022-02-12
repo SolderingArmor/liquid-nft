@@ -243,7 +243,7 @@ contract LiquidNFTCollection is IBase, ILiquidNFTCollection
 
     //========================================
     //    
-    function changeOwner(address ownerAddress) external override onlyOwner reserve returnChange
+    function setOwner(address ownerAddress) external override onlyOwner reserve returnChange
     {
         _ownerAddress = ownerAddress;
     }

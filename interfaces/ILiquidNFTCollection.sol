@@ -54,7 +54,7 @@ interface ILiquidNFTCollection
     ///
     /// @param ownerAddress - New owner address;
     //
-    function changeOwner(address ownerAddress) external;
+    function setOwner(address ownerAddress) external;
     
     //========================================
     /// @notice Returns collection information;

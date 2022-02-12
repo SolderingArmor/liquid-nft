@@ -80,7 +80,7 @@ interface ILiquidNFT
     //========================================
     // Events
     event ownerChanged(address oldOwnerAddress, address newOwnerAddress);
-    event metadataUpdated();
+    event metadataChanged();
     event printCreated(uint256 printID, address printAddress);
 
     //========================================
@@ -139,21 +139,21 @@ interface ILiquidNFT
     ///
     /// @param ownerAddress - New owner address;
     //
-    function changeOwner(address ownerAddress) external;
+    function setOwner(address ownerAddress) external;
     
     //========================================
     /// @notice Changes NFT owner and flips `primarySaleHappened` flag to `true`;
     ///
     /// @param ownerAddress - New owner address;
     //
-    function changeOwnerWithPrimarySale(address ownerAddress) external;
+    function setOwnerWithPrimarySale(address ownerAddress) external;
     
     //========================================
     /// @notice Changes NFT metadata if `metadataIsMutable` is `true`;
     ///
     /// @param metadataContents - New metadata in JSON format;
     //
-    function updateMetadata(string metadataContents) external;
+    function setMetadata(string metadataContents) external;
     
     //========================================
     /// @notice Locks NFT metadata;

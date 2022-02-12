@@ -66,7 +66,7 @@
 			]
 		},
 		{
-			"name": "changeOwner",
+			"name": "setOwner",
 			"inputs": [
 				{"name":"ownerAddress","type":"address"}
 			],
@@ -74,7 +74,7 @@
 			]
 		},
 		{
-			"name": "changeOwnerWithPrimarySale",
+			"name": "setOwnerWithPrimarySale",
 			"inputs": [
 				{"name":"ownerAddress","type":"address"}
 			],
@@ -82,7 +82,7 @@
 			]
 		},
 		{
-			"name": "updateMetadata",
+			"name": "setMetadata",
 			"inputs": [
 				{"name":"metadataContents","type":"string"}
 			],
@@ -134,7 +134,7 @@
 			]
 		},
 		{
-			"name": "metadataUpdated",
+			"name": "metadataChanged",
 			"inputs": [
 			],
 			"outputs": [

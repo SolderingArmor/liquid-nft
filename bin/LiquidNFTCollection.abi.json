@@ -93,7 +93,7 @@
 			]
 		},
 		{
-			"name": "changeOwner",
+			"name": "setOwner",
 			"inputs": [
 				{"name":"ownerAddress","type":"address"}
 			],
