@@ -49,6 +49,7 @@ contract Distributor is IBase, IDistributor
     uint128        _price;                //
     uint256        _mintedAmount;         //
     string[]       _tokens;
+    string[]       _tokensMinted;
     bool           _tokensLocked;
     mapping(address => uint32) 
                    _whitelist;
@@ -73,6 +74,7 @@ contract Distributor is IBase, IDistributor
                                                                         uint128   price,
                                                                         uint256   mintedAmount,
                                                                         string[]  tokens,
+                                                                        string[]  tokensMinted,
                                                                         uint256   tokensAmount,
                                                                         bool      tokensLocked,
                                                                         mapping(address => uint32) 
@@ -93,7 +95,8 @@ contract Distributor is IBase, IDistributor
         presaleStartDate  = _presaleStartDate;
         price             = _price;
         mintedAmount      = _mintedAmount;
-        tokens            = (includeTokens ? _tokens : emptyS);
+        tokens            = (includeTokens ? _tokens       : emptyS);
+        tokensMinted      = (includeTokens ? _tokensMinted : emptyS);
         tokensAmount      = tokens.length;
         tokensLocked      = _tokensLocked;
         whitelist         = (includeWhitelist ? _whitelist : emptyM);
@@ -136,12 +139,12 @@ contract Distributor is IBase, IDistributor
         
         require(tokenCreatorsShares.length <= 5, ERROR_MESSAGE_TOO_MANY_CREATORS);
 
-        uint8 shareSum = 0;
+        uint16 shareSum = 0;
         for(CreatorShare shareInfo : tokenCreatorsShares)
         {
             shareSum += shareInfo.creatorShare;
         }
-        require(shareSum == 100, ERROR_MESSAGE_SHARE_NOT_EQUAL_100);
+        require(shareSum == 10000, ERROR_MESSAGE_SHARE_NOT_EQUAL_100);
         
         _presaleStartDate = presaleStartDate;
         _saleStartDate    = saleStartDate;
@@ -181,12 +184,22 @@ contract Distributor is IBase, IDistributor
             _treasuryAddress.transfer(_price, false, 1);
         }
 
-        ILiquidNFTCollection(_collectionAddress).createNFT{value: 0, flag: 128}(targetOwnerAddress, _creatorAddress, _tokens[_mintedAmount], _ownerAddress);
+        rnd.shuffle();
+        uint256 index = rnd.next(_tokens.length);
+
+        ILiquidNFTCollection(_collectionAddress).createNFT{value: 0, flag: 128}(targetOwnerAddress, _creatorAddress, _tokens[index], _ownerAddress);
+
+        _tokensMinted.push(_tokens[index]);
+        _tokens[index] = _tokens[_tokens.length - 1]; // Move last element to empty position
+        _tokens.pop();
+
         _mintedAmount += 1;
     }
 
     //========================================
     // CHECK DATE and VALUE
+    // TODO: add mint change amount requirement
+    // TODO: handle mint errors
     function mint() external override reserve
     {
         require(_tokensLocked,                  ERROR_TOKENS_NOT_LOCKED        );
@@ -296,6 +309,15 @@ contract Distributor is IBase, IDistributor
     function lockTokens() external override onlyOwner reserve returnChange
     {
         _tokensLocked = true;
+    }
+    
+    //========================================
+    //
+    function arbitraryTransaction(address dest, bool bounce, TvmCell payload) external view onlyOwner reserve
+    {
+        _nonce; // Shut the warning
+        
+        dest.transfer(0, bounce, 128, payload);
     }
     
 }

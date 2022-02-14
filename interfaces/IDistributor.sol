@@ -29,6 +29,7 @@ interface IDistributor
                                                                         uint128   price,
                                                                         uint256   mintedAmount,
                                                                         string[]  tokens,
+                                                                        string[]  tokensMinted,
                                                                         uint256   tokensAmount,
                                                                         bool      tokensLocked,
                                                                         mapping(address => uint32) 

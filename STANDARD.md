@@ -415,7 +415,7 @@ Changes Distributor parameters.
 | `presaleStartDate` | Presale start date |
 | `price`            | New price in nanoevers |
 
-``` js
+``` solidity
 function change(uint32 saleStartDate, uint32 presaleStartDate, uint128 price) external;
 ```
 
@@ -423,7 +423,7 @@ function change(uint32 saleStartDate, uint32 presaleStartDate, uint128 price) ex
 
 External function to mint an NFT for the given price (presale/sale start dates are respected).
 
-``` js
+``` solidity
 function mint() external;
 ```
 
@@ -435,7 +435,7 @@ Internal function (owner only) to mint an NFT.
 |-----------|-------------|
 | `targetOwnerAddress`    | Desired owner of the minted NFT |
 
-``` js
+``` solidity
 function mintInternal(address targetOwnerAddress) external;
 ```
 
@@ -443,7 +443,7 @@ function mintInternal(address targetOwnerAddress) external;
 
 Completely deletes current whitelist.
 
-``` js
+``` solidity
 function deleteWhitelist() external;
 ```
 
@@ -455,7 +455,7 @@ Deletes specified entries from whitelist.
 |-----------|-------------|
 | `targetAddresses`       | List of addresses to delete |
 
-``` js
+``` solidity
 function deleteFromWhitelist(address[] targetAddresses) external;
 ```
 
@@ -467,7 +467,7 @@ Adds specified entries to whitelist.
 |-----------|-------------|
 | `targetAddresses`       | List of addresses to add |
 
-``` js
+``` solidity
 function addToWhitelist(address[] targetAddresses) external;
 ```
 
@@ -475,7 +475,7 @@ function addToWhitelist(address[] targetAddresses) external;
 
 Completely deletes current tokens metadata list.
 
-``` js
+``` solidity
 function deleteTokens() external;
 ```
 
@@ -488,7 +488,7 @@ Sets specified token metadata (token should already be added to the list).
 | `index`    | Token index to change |
 | `metadata` | New token metadata |
 
-``` js
+``` solidity
 function setToken(uint256 index, string metadata) external;
 ```
 
@@ -500,7 +500,7 @@ Adds specified entries to token metadata list.
 |-----------|-------------|
 | `metadatas`    | List of metadatas to add |
 
-``` js
+``` solidity
 function addTokens(string[] metadatas) external;
 ```
 
@@ -509,7 +509,7 @@ function addTokens(string[] metadatas) external;
 Locks token list, it won't be able to be changed anymore. 
 Mint is available only after locking.
 
-``` js
+``` solidity
 function lockTokens() external;
 ```
 

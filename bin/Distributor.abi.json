@@ -15,7 +15,7 @@
 				{"name":"tokenMasterEditionMaxSupply","type":"uint256"},
 				{"name":"tokenMasterEditionPrintLocked","type":"bool"},
 				{"name":"tokenCreatorsPercent","type":"uint16"},
-				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint8"}],"name":"tokenCreatorsShares","type":"tuple[]"}
+				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"tokenCreatorsShares","type":"tuple[]"}
 			],
 			"outputs": [
 			]
@@ -38,6 +38,7 @@
 				{"name":"price","type":"uint128"},
 				{"name":"mintedAmount","type":"uint256"},
 				{"name":"tokens","type":"string[]"},
+				{"name":"tokensMinted","type":"string[]"},
 				{"name":"tokensAmount","type":"uint256"},
 				{"name":"tokensLocked","type":"bool"},
 				{"name":"whitelist","type":"map(address,uint32)"},
@@ -123,6 +124,16 @@
 			],
 			"outputs": [
 			]
+		},
+		{
+			"name": "arbitraryTransaction",
+			"inputs": [
+				{"name":"dest","type":"address"},
+				{"name":"bounce","type":"bool"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
 		}
 	],
 	"data": [
@@ -154,6 +165,7 @@
 		{"name":"_price","type":"uint128"},
 		{"name":"_mintedAmount","type":"uint256"},
 		{"name":"_tokens","type":"string[]"},
+		{"name":"_tokensMinted","type":"string[]"},
 		{"name":"_tokensLocked","type":"bool"},
 		{"name":"_whitelist","type":"map(address,uint32)"},
 		{"name":"_whitelistCount","type":"uint256"},
