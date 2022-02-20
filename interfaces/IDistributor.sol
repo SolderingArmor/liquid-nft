@@ -5,7 +5,7 @@ pragma AbiHeader expire;
 
 //================================================================================
 //
-import "../contracts/LiquidNFTCollection.sol";
+import "../contracts/LiquidCollection.sol";
 
 //================================================================================
 //
@@ -17,25 +17,25 @@ interface IDistributor
     /// @param includeTokens    - If token metadata list should be included;
     /// @param includeWhitelist - If token whitelist     should be included;
     // 
-    function getInfo(bool includeTokens, bool includeWhitelist) external view 
-                                                                returns(uint256   nonce,
-                                                                        address   creatorAddress,
-                                                                        address   ownerAddress,
-                                                                        uint256   ownerPubkey,
-                                                                        address   treasuryAddress,
-                                                                        address   collectionAddress,
-                                                                        uint32    saleStartDate,
-                                                                        uint32    presaleStartDate,
-                                                                        uint128   price,
-                                                                        uint256   mintedAmount,
-                                                                        string[]  tokens,
-                                                                        string[]  tokensMinted,
-                                                                        uint256   tokensAmount,
-                                                                        bool      tokensLocked,
-                                                                        mapping(address => uint32) 
-                                                                                  whitelist,
-                                                                        uint256   whitelistCount,
-                                                                        uint32    whitelistBuyLimit);
+    function getInfo(bool includeTokens, bool includeWhitelist) external view returns(
+        uint256   nonce,
+        address   creatorAddress,
+        address   ownerAddress,
+        uint256   ownerPubkey,
+        address   treasuryAddress,
+        address   collectionAddress,
+        uint32    saleStartDate,
+        uint32    presaleStartDate,
+        uint128   price,
+        uint256   mintedAmount,
+        string[]  tokens,
+        string[]  tokensMinted,
+        uint256   tokensAmount,
+        bool      tokensLocked,
+        mapping(address => uint32) 
+                    whitelist,
+        uint256   whitelistCount,
+        uint32    whitelistBuyLimit);
     
     //========================================
     /// @notice Changes Distributor parameters;

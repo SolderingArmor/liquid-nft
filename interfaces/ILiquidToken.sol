@@ -1,11 +1,16 @@
-pragma ton-solidity >=0.52.0;
+pragma ton-solidity >=0.55.0;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
 pragma AbiHeader expire;
 
 //================================================================================
 //
+import "../interfaces/ILiquidTokenBase.sol";
+
+//================================================================================
+//
 // Metadata JSON format:
+// type                - "Liquid Token".
 // name                - Human readable name of the asset.
 // symbol              - Human readable symbol of the asset (if any).
 // description         - Human readable description of the asset.
@@ -28,6 +33,7 @@ pragma AbiHeader expire;
 //
 // EXAMPLE:
 //{
+//    "type": "Liquid Token",
 //    "name": "Everscale NFT",
 //    "symbol": "",
 //    "description": "Never gonna give you up!",
@@ -75,11 +81,10 @@ struct CreatorShare
 
 //================================================================================
 //
-interface ILiquidNFT
+interface ILiquidToken is ILiquidTokenBase
 {
     //========================================
     // Events
-    event ownerChanged(address oldOwnerAddress, address newOwnerAddress);
     event metadataChanged();
     event printCreated(uint256 printID, address printAddress);
 
@@ -94,7 +99,7 @@ interface ILiquidNFT
     ///     ownerAddress             - NFT owner;
     ///     creatorAddress           - NFT creator;
     ///     primarySaleHappened      - If 100% of the first sale should be distributed between the creators list;
-    ///     metadataContents         - Token metadata in JSON format;
+    ///     metadata                 - Token metadata in JSON format;
     ///     metadataIsMutable        - Boolean if metadata is mutable and can be changed;
     ///     metadataAuthorityAddress - Address of an authority who can update metadata (if it is mutable);
     ///     masterEditionSupply      - Current amount of copies if the token can be printed;
@@ -104,45 +109,41 @@ interface ILiquidNFT
     ///     creatorsPercent          - Defines how many percent creators get when NFT is sold on a secondary market;
     ///     creatorsShares           - Defines a list of creators with their shares;
     //
-    function getInfo(bool includeMetadata) external view returns (address        collectionAddress,
-                                                                  uint256        tokenID,
-                                                                  address        ownerAddress,
-                                                                  address        creatorAddress,
-                                                                  bool           primarySaleHappened,
-                                                                  string         metadataContents,
-                                                                  bool           metadataIsMutable,
-                                                                  address        metadataAuthorityAddress,
-                                                                  uint256        masterEditionSupply,
-                                                                  uint256        masterEditionMaxSupply,
-                                                                  bool           masterEditionPrintLocked,
-                                                                  uint256        editionNumber,
-                                                                  uint16         creatorsPercent,
-                                                                  CreatorShare[] creatorsShares);
+    function getInfo(bool includeMetadata) external view returns (
+        address        collectionAddress,
+        uint256        tokenID,
+        address        ownerAddress,
+        address        creatorAddress,
+        bool           primarySaleHappened,
+        string         metadata,
+        bool           metadataIsMutable,
+        address        metadataAuthorityAddress,
+        uint256        masterEditionSupply,
+        uint256        masterEditionMaxSupply,
+        bool           masterEditionPrintLocked,
+        uint256        editionNumber,
+        uint16         creatorsPercent,
+        CreatorShare[] creatorsShares);
 
-    function callInfo(bool includeMetadata) external responsible view returns (address        collectionAddress,
-                                                                               uint256        tokenID,
-                                                                               address        ownerAddress,
-                                                                               address        creatorAddress,
-                                                                               bool           primarySaleHappened,
-                                                                               string         metadataContents,
-                                                                               bool           metadataIsMutable,
-                                                                               address        metadataAuthorityAddress,
-                                                                               uint256        masterEditionSupply,
-                                                                               uint256        masterEditionMaxSupply,
-                                                                               bool           masterEditionPrintLocked,
-                                                                               uint256        editionNumber,
-                                                                               uint16         creatorsPercent,
-                                                                               CreatorShare[] creatorsShares);
+    function callInfo(bool includeMetadata) external responsible view returns (
+        address        collectionAddress,
+        uint256        tokenID,
+        address        ownerAddress,
+        address        creatorAddress,
+        bool           primarySaleHappened,
+        string         metadata,
+        bool           metadataIsMutable,
+        address        metadataAuthorityAddress,
+        uint256        masterEditionSupply,
+        uint256        masterEditionMaxSupply,
+        bool           masterEditionPrintLocked,
+        uint256        editionNumber,
+        uint16         creatorsPercent,
+        CreatorShare[] creatorsShares);
 
-    //========================================
-    /// @notice Changes NFT owner;
-    ///
-    /// @param ownerAddress - New owner address;
-    //
-    function setOwner(address ownerAddress) external;
-    
     //========================================
     /// @notice Changes NFT owner and flips `primarySaleHappened` flag to `true`;
+    ///         Auctions need to use this function after a successfull sale.
     ///
     /// @param ownerAddress - New owner address;
     //
@@ -151,9 +152,9 @@ interface ILiquidNFT
     //========================================
     /// @notice Changes NFT metadata if `metadataIsMutable` is `true`;
     ///
-    /// @param metadataContents - New metadata in JSON format;
+    /// @param metadata - New metadata in JSON format;
     //
-    function setMetadata(string metadataContents) external;
+    function setMetadata(string metadata) external;
     
     //========================================
     /// @notice Locks NFT metadata;
@@ -175,12 +176,6 @@ interface ILiquidNFT
     /// @notice Locks NFT printing;
     //
     function lockPrint() external;
-    
-    //========================================
-    /// @notice Destroys NFT;
-    ///         WARNING! This can not be undone;
-    //
-    function destroy() external;
 }
 
 //================================================================================

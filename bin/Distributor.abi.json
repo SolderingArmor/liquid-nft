@@ -9,7 +9,7 @@
 				{"name":"presaleStartDate","type":"uint32"},
 				{"name":"saleStartDate","type":"uint32"},
 				{"name":"price","type":"uint128"},
-				{"name":"collectionMetadataContents","type":"string"},
+				{"name":"collectionMetadata","type":"string"},
 				{"name":"tokenPrimarySaleHappened","type":"bool"},
 				{"name":"tokenMetadataIsMutable","type":"bool"},
 				{"name":"tokenMasterEditionMaxSupply","type":"uint256"},

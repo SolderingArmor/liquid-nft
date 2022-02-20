@@ -109,7 +109,7 @@ contract Distributor is IBase, IDistributor
     function calculateFutureCollectionAddress(uint256 nonce) private inline view returns (address, TvmCell)
     {
         TvmCell stateInit = tvm.buildStateInit({
-            contr: LiquidNFTCollection,
+            contr: LiquidCollection,
             varInit: {
                 _nonce:     nonce,
                 _tokenCode: _tokenCode
@@ -125,7 +125,7 @@ contract Distributor is IBase, IDistributor
     constructor(uint32         presaleStartDate,
                 uint32         saleStartDate,
                 uint128        price,
-                string         collectionMetadataContents, 
+                string         collectionMetadata, 
                 bool           tokenPrimarySaleHappened,
                 bool           tokenMetadataIsMutable,
                 uint256        tokenMasterEditionMaxSupply,
@@ -154,15 +154,16 @@ contract Distributor is IBase, IDistributor
 
         (address collectionAddress, TvmCell stateInit) = calculateFutureCollectionAddress(_nonce);
         _collectionAddress = collectionAddress;
-        new LiquidNFTCollection{value: 0, flag: 128, stateInit: stateInit}(address(this),
-                                                                           _ownerAddress,
-                                                                           collectionMetadataContents, 
-                                                                           tokenPrimarySaleHappened,
-                                                                           tokenMetadataIsMutable,
-                                                                           tokenMasterEditionMaxSupply,
-                                                                           tokenMasterEditionPrintLocked,
-                                                                           tokenCreatorsPercent,
-                                                                           tokenCreatorsShares);
+        new LiquidCollection{value: 0, flag: 128, stateInit: stateInit}(
+            address(this),
+            _ownerAddress,
+            collectionMetadata, 
+            tokenPrimarySaleHappened,
+            tokenMetadataIsMutable,
+            tokenMasterEditionMaxSupply,
+            tokenMasterEditionPrintLocked,
+            tokenCreatorsPercent,
+            tokenCreatorsShares);
 
     }
 
@@ -187,7 +188,7 @@ contract Distributor is IBase, IDistributor
         rnd.shuffle();
         uint256 index = rnd.next(_tokens.length);
 
-        ILiquidNFTCollection(_collectionAddress).createNFT{value: 0, flag: 128}(targetOwnerAddress, _creatorAddress, _tokens[index], _ownerAddress);
+        ILiquidCollection(_collectionAddress).createToken{value: 0, flag: 128}(targetOwnerAddress, _creatorAddress, _tokens[index], _ownerAddress);
 
         _tokensMinted.push(_tokens[index]);
         _tokens[index] = _tokens[_tokens.length - 1]; // Move last element to empty position

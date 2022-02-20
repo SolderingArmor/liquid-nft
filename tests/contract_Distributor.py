@@ -6,7 +6,7 @@ import freeton_utils
 from   freeton_utils import *
 
 class Distributor(BaseContract):
-    def __init__(self, tonClient: TonClient, nonce: str, 
+    def __init__(self, everClient: TonClient, nonce: str, 
                                              creatorAddress: str,
                                              ownerAddress: str,
                                              ownerPubkey: str,
@@ -14,7 +14,7 @@ class Distributor(BaseContract):
                                              presaleStartDate: int,
                                              saleStartDate: int,
                                              price: int,
-                                             collectionMetadataContents: str,
+                                             collectionMetadata: str,
                                              tokenPrimarySaleHappened: bool,
                                              tokenMetadataIsMutable: bool,
                                              tokenMasterEditionMaxSupply: int,
@@ -27,7 +27,7 @@ class Distributor(BaseContract):
         self.CONSTRUCTOR = {"presaleStartDate":              presaleStartDate,
                             "saleStartDate":                 saleStartDate,
                             "price":                         price,
-                            "collectionMetadataContents":    json.dumps(collectionMetadataContents),
+                            "collectionMetadata":            json.dumps(collectionMetadata),
                             "tokenPrimarySaleHappened":      tokenPrimarySaleHappened,
                             "tokenMetadataIsMutable":        tokenMetadataIsMutable,
                             "tokenMasterEditionMaxSupply":   tokenMasterEditionMaxSupply,
@@ -39,9 +39,9 @@ class Distributor(BaseContract):
                             "_ownerAddress":   ownerAddress, 
                             "_ownerPubkey":    ownerPubkey, 
                             "_treasuryAddress":treasuryAddress, 
-                            "_collectionCode": getCodeFromTvc("../bin/LiquidNFTCollection.tvc"), 
-                            "_tokenCode":      getCodeFromTvc("../bin/LiquidNFT.tvc")}
-        BaseContract.__init__(self, tonClient=tonClient, contractName="Distributor", pubkey=ZERO_PUBKEY, signer=genSigner)
+                            "_collectionCode": getCodeFromTvc("../bin/LiquidCollection.tvc"), 
+                            "_tokenCode":      getCodeFromTvc("../bin/LiquidToken.tvc")}
+        BaseContract.__init__(self, everClient=everClient, contractName="Distributor", pubkey=ZERO_PUBKEY, signer=genSigner)
 
     #========================================
     #

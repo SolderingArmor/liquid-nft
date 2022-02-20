@@ -1,6 +1,6 @@
 ---
 tip: 7
-title: TRC-7 NFT Standard
+title: TIP-4.3 NFT Standard
 author: Anton Platonov <anton@platonov.us>
 type: Standards Track
 category: TRC
@@ -53,20 +53,20 @@ Return values:
 
 | Parameter | Description |
 |-----------|-------------|
-| `collectionAddress` | Token collection address |
-| `tokenID` | Token ID |
-| `ownerAddress` | NFT owner |
-| `creatorAddress` | NFT creator |
-| `primarySaleHappened` | If 100% of the first sale should be distributed between the creators list |
-| `metadataContents` | Token metadata in JSON format |
-| `metadataIsMutable` | Boolean if metadata is mutable and can be changed |
+| `collectionAddress`        | Token collection address |
+| `tokenID`                  | Token ID |
+| `ownerAddress`             | Token owner |
+| `creatorAddress`           | Token creator |
+| `primarySaleHappened`      | If 100% of the first sale should be distributed between the creators list |
+| `metadata`                 | Token metadata in JSON format |
+| `metadataIsMutable`        | Boolean if metadata is mutable and can be changed |
 | `metadataAuthorityAddress` | Address of an authority who can update metadata (if it is mutable) |
-| `masterEditionSupply` | Current amount of copies if the token can be printed |
-| `masterEditionMaxSupply` | Maximum amount of copies if the token can be printed |
+| `masterEditionSupply`      | Current amount of copies if the token can be printed |
+| `masterEditionMaxSupply`   | Maximum amount of copies if the token can be printed |
 | `masterEditionPrintLocked` | If print is available or locked |
-| `editionNumber` | Master edition (original token) always has `editionNumber` = 0, printed versions have 1+ |
-| `creatorsPercent` | Defines how many percent creators get when NFT is sold on a secondary market |
-| `creatorsShares` | Defines a list of creators with their shares |
+| `editionNumber`            | Master edition (original token) always has `editionNumber` = 0, printed versions have 1+ |
+| `creatorsPercent`          | Defines how many percent creators get when Token is sold on a secondary market |
+| `creatorsShares`           | Defines a list of creators with their shares |
 
 ``` solidity
 struct CreatorShare
@@ -81,7 +81,7 @@ function getInfo(bool includeMetadata) external view returns (
     address        ownerAddress,
     address        creatorAddress,
     bool           primarySaleHappened,
-    string         metadataContents,
+    string         metadata,
     bool           metadataIsMutable,
     address        metadataAuthorityAddress,
     uint256        masterEditionSupply,
@@ -97,7 +97,7 @@ function callInfo(bool includeMetadata) external responsible view returns (
     address        ownerAddress,
     address        creatorAddress,
     bool           primarySaleHappened,
-    string         metadataContents,
+    string         metadata,
     bool           metadataIsMutable,
     address        metadataAuthorityAddress,
     uint256        masterEditionSupply,
@@ -110,7 +110,7 @@ function callInfo(bool includeMetadata) external responsible view returns (
 
 #### setOwner
 
-Changes NFT owner.
+Changes Token owner.
 
 | Parameter | Description |
 |-----------|-------------|
@@ -122,7 +122,7 @@ function setOwner(address ownerAddress) external;
 
 #### setOwnerWithPrimarySale
 
-Changes NFT owner and flips `primarySaleHappened` flag to `true`.
+Changes Token owner and flips `primarySaleHappened` flag to `true`.
 
 | Parameter | Description |
 |-----------|-------------|
@@ -134,19 +134,19 @@ function setOwnerWithPrimarySale(address ownerAddress) external;
 
 #### setMetadata
 
-Changes NFT metadata if `metadataIsMutable` is `true`.
+Changes Token metadata if `metadataIsMutable` is `true`.
 
 | Parameter | Description |
 |-----------|-------------|
-| `metadataContents` | New metadata in JSON format |
+| `metadata` | New metadata in JSON format |
 
 ``` solidity
-function setMetadata(string metadataContents) external;
+function setMetadata(string metadata) external;
 ```
 
 #### lockMetadata
 
-Locks NFT metadata.
+Locks Token metadata.
 
 ``` solidity
 function lockMetadata() external;
@@ -154,12 +154,12 @@ function lockMetadata() external;
 
 #### printCopy
 
-Prints a copy of the NFT.
-Sometimes when you need multiple copies of the same NFT you can.. well..
-create multiple copies of the same NFT (like coins or medals etc.) 
-and they will technically different NFTs but at the same time logically 
+Prints a copy of the Token.
+Sometimes when you need multiple copies of the same Token you can.. well..
+create multiple copies of the same Token (like coins or medals etc.) 
+and they will technically different Tokens but at the same time logically 
 they will be the same. Printing allows you to have multiple copies of the 
-same NFT (with the same `tokenID`) distributed to any number of people. Every
+same Token (with the same `tokenID`) distributed to any number of people. Every
 one of them will be able to sell or transfer their own copy.
 
 | Parameter | Description |
@@ -172,7 +172,7 @@ function printCopy(address targetOwnerAddress) external;
 
 #### lockPrint
 
-Locks NFT printing.
+Locks Token printing.
 
 ``` solidity
 function lockPrint() external;
@@ -180,7 +180,7 @@ function lockPrint() external;
 
 #### destroy
 
-Destroys NFT.
+Destroys Token.
 WARNING! This can not be undone!
 
 ``` solidity
@@ -191,12 +191,12 @@ function destroy() external;
 
 #### ownerChanged
 
-Emitted when NFT owner is changed.
+Emitted when Token owner is changed.
 
 | Parameter | Description |
 |-----------|-------------|
-| `oldOwnerAddress` | Old owner address |
-| `newOwnerAddress` | New owner address |
+| `from` | Old owner address |
+| `to`   | New owner address |
 
 ``` solidity
 event ownerChanged(address oldOwnerAddress, address newOwnerAddress);
@@ -204,7 +204,7 @@ event ownerChanged(address oldOwnerAddress, address newOwnerAddress);
 
 #### metadataChanged
 
-Emitted when NFT metadata is changed.
+Emitted when Token metadata is changed.
 
 ``` solidity
 event metadataChanged();
@@ -212,7 +212,7 @@ event metadataChanged();
 
 #### printCreated
 
-Emitted when NFT copy is printed.
+Emitted when Token copy is printed.
 
 | Parameter | Description |
 |-----------|-------------|
@@ -229,7 +229,7 @@ event printCreated(uint256 printID, address printAddress);
 #### getInfo
 #### callInfo
 
-Returns collection information
+Returns `Collection` information
 
 | Parameter | Description |
 |-----------|-------------|
@@ -244,14 +244,13 @@ Return values:
 | `tokenCode`                      | TvmCell of the token code |
 | `tokensIssued`                   | Number of tokens this collection created |
 | `ownerAddress`                   | Owner address |
-| `creatorAddress`                 | Creator address |
-| `metadataContents`               | Collection metadata; it has the same format as NFT metadata but keeps collection cover and information |
-| `tokenPrimarySaleHappened`       | Default value for `tokenPrimarySaleHappened` param when minting NFT (see `ILiquidNFT.sol` for details) |
-| `tokenMetadataIsMutable`         | Default value for `tokenMetadataIsMutable` param when minting NFT (see `ILiquidNFT.sol` for details) |
-| `tokenMasterEditionMaxSupply`    | Default value for `tokenMasterEditionMaxSupply` param when minting NFT (see `ILiquidNFT.sol` for details) |
-| `tokenMasterEditionPrintLocked`  | Default value for `tokenMasterEditionPrintLocked` param when minting NFT (see `ILiquidNFT.sol` for details) |
-| `tokenCreatorsPercent`           | Default value for `tokenCreatorsPercent` param when minting NFT (see `ILiquidNFT.sol` for details) |
-| `tokenCreatorsShares`            | Default value for `tokenCreatorsShares` param when minting NFT (see `ILiquidNFT.sol` for details) |
+| `metadata`                       | Collection metadata; it has the same format as Token metadata but keeps collection cover and information |
+| `tokenPrimarySaleHappened`       | Default value for `tokenPrimarySaleHappened` param when minting Token (see `ILiquidToken.sol` for details) |
+| `tokenMetadataIsMutable`         | Default value for `tokenMetadataIsMutable` param when minting Token (see `ILiquidToken.sol` for details) |
+| `tokenMasterEditionMaxSupply`    | Default value for `tokenMasterEditionMaxSupply` param when minting Token (see `ILiquidToken.sol` for details) |
+| `tokenMasterEditionPrintLocked`  | Default value for `tokenMasterEditionPrintLocked` param when minting Token (see `ILiquidToken.sol` for details) |
+| `tokenCreatorsPercent`           | Default value for `tokenCreatorsPercent` param when minting Token (see `ILiquidToken.sol` for details) |
+| `tokenCreatorsShares`            | Default value for `tokenCreatorsShares` param when minting Token (see `ILiquidToken.sol` for details) |
 
 ``` solidity
 struct CreatorShare
@@ -265,8 +264,7 @@ function getInfo(bool includeMetadata, bool includeTokenCode) external view retu
     TvmCell        tokenCode,
     uint256        tokensIssued,
     address        ownerAddress,
-    address        creatorAddress,
-    string         metadataContents,
+    string         metadata,
     bool           tokenPrimarySaleHappened,
     bool           tokenMetadataIsMutable,
     uint256        tokenMasterEditionMaxSupply,
@@ -279,8 +277,7 @@ function callInfo(bool includeMetadata, bool includeTokenCode) external view res
     TvmCell        tokenCode,
     uint256        tokensIssued,
     address        ownerAddress,
-    address        creatorAddress,
-    string         metadataContents,
+    string         metadata,
     bool           tokenPrimarySaleHappened,
     bool           tokenMetadataIsMutable,
     uint256        tokenMasterEditionMaxSupply,
@@ -301,35 +298,35 @@ Changes Collection owner.
 function setOwner(address ownerAddress) external;
 ```
 
-#### createNFT
+#### createToken
 
-Creates new NFT.
+Creates new Token.
 
 | Parameter | Description |
 |-----------|-------------|
 | `ownerAddress`             | New owner address |
 | `creatorAddress`           | Creator address |
-| `metadataContents`         | Metadata in JSON format (see `ILiquidNFT.sol`) |
+| `metadata`                 | Metadata in JSON format (see `ILiquidToken.sol`) |
 | `metadataAuthorityAddress` | Metadata authority that can update metadata if needed |
 
 ``` solidity
-function createNFT(
+function createToken(
     address ownerAddress,
     address creatorAddress,
-    string  metadataContents,
+    string  metadata,
     address metadataAuthorityAddress) external returns (address tokenAddress);
 ```
 
-#### createNFTExtended
+#### createTokenExtended
 
-Creates new NFT, extended version with all parameters.
+Creates new Token, extended version with all parameters.
 
 | Parameter | Description |
 |-----------|-------------|
 | `ownerAddress`             | New owner address |
 | `creatorAddress`           | Creator address |
 | `primarySaleHappened`      | If 100% of the first sale should be distributed between the creators list |
-| `metadataContents`         | Metadata in JSON format (see `ILiquidNFT.sol`) |
+| `metadata`                 | Metadata in JSON format (see `ILiquidToken.sol`) |
 | `metadataIsMutable`        | If metadata can be changed by authority |
 | `metadataAuthorityAddress` | Metadata authority that can update metadata if needed |
 | `masterEditionMaxSupply`   | >0 if token should be printable |
@@ -344,11 +341,11 @@ struct CreatorShare
     uint16  creatorShare;   // 100 = 1% share
 }
 
-function createNFTExtended(
+function createTokenExtended(
     address        ownerAddress,
     address        creatorAddress,
     bool           primarySaleHappened,
-    string         metadataContents,
+    string         metadata,
     bool           metadataIsMutable,
     address        metadataAuthorityAddress,
     uint256        masterEditionMaxSupply,
@@ -359,17 +356,19 @@ function createNFTExtended(
 
 ### Events
 
-#### nftMinted
+#### mint
 
-Minted new NFT.
+Minted new Token.
 
 | Parameter | Description |
 |-----------|-------------|
-| `id`         | ID of the new NFT |
-| `nftAddress` | Address of a new NFT |
+| `tokenID`        | ID of the new Token |
+| `tokenAddress`   | Address of a new Token |
+| `ownerAddress`   | Address of a new Token Owner |
+| `creatorAddress` | Address of a new Token Creator |
 
 ``` solidity
-event nftMinted(uint256 id, address nftAddress);
+event mint(uint256 tokenID, address tokenAddress, address ownerAddress, address creatorAddress);
 ```
 
 # Distributor 
@@ -421,7 +420,7 @@ function change(uint32 saleStartDate, uint32 presaleStartDate, uint128 price) ex
 
 ### mint
 
-External function to mint an NFT for the given price (presale/sale start dates are respected).
+External function to mint an Token for the given price (presale/sale start dates are respected).
 
 ``` solidity
 function mint() external;
@@ -429,11 +428,11 @@ function mint() external;
 
 ### mintInternal
 
-Internal function (owner only) to mint an NFT.
+Internal function (owner only) to mint an Token.
 
 | Parameter | Description |
 |-----------|-------------|
-| `targetOwnerAddress`    | Desired owner of the minted NFT |
+| `targetOwnerAddress`    | Desired owner of the minted Token |
 
 ``` solidity
 function mintInternal(address targetOwnerAddress) external;

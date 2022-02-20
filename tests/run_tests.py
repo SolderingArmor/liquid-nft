@@ -2,6 +2,7 @@
 
 # ==============================================================================
 # 
+from importlib.metadata import distribution
 import freeton_utils
 from   freeton_utils import *
 import binascii
@@ -12,12 +13,13 @@ import os
 import random
 from   pathlib import Path
 from   pprint import pprint
-from   contract_Distributor         import Distributor
-from   contract_LiquidNFT           import LiquidNFT
-from   contract_LiquidNFTCollection import LiquidNFTCollection
-from   contract_DistributorDebot    import DistributorDebot
+from   contract_Distributor      import Distributor
+from   contract_LiquidToken      import LiquidToken
+from   contract_LiquidCollection import LiquidCollection
+from   contract_DistributorDebot import DistributorDebot
 
-SERVER_ADDRESS = "https://net.ton.dev"
+#SERVER_ADDRESS = "https://net.ton.dev"
+SERVER_ADDRESS = "https://gql.custler.net"
 
 # ==============================================================================
 #
@@ -82,13 +84,26 @@ defaultMeta = {
     "seller_fee_basis_points": 1000,
     "image": "image.png",
     "external_url": "",
-    "collection": {
-        "name": "Degen test gen 1",
-        "family": "Degen Family"
-    },
-    "attributes": [
-        {"trait_type": "trait_name", "value": "trait_value"}
-    ],
+    "collection": {},
+    "attributes": [],
+    "properties": {
+        "files": [
+            {"uri": "image.png","type": "image/png"}
+        ],
+        "category": "image"
+    }
+}
+
+
+defaultCollectionMeta = {
+    "name"  : "Name",
+    "symbol": "",
+    "description": "Description",
+    "seller_fee_basis_points": 1000,
+    "image": "image.png",
+    "external_url": "",
+    "collection": {},
+    "attributes": [],
     "properties": {
         "files": [
             {"uri": "image.png","type": "image/png"}
@@ -101,16 +116,15 @@ defaultMeta = {
 # 
 print("DEPLOYING CONTRACTS...")
 
+
 # MSIGS
-msigRand  = Multisig(tonClient=getClient())
-authority = Multisig(tonClient=getClient())
-giverGive(getClient(), authority.ADDRESS, EVER * 100)
-authority.deploy()
+msigRand  = Multisig(everClient=getClient())
+authority = Multisig(everClient=getClient())
 
 nonce = hex(random.randint(0, 0xFFFFFFFFFFFFFFFFFFFFFFFF))
 print(nonce)
 
-distributor = Distributor(tonClient                     = getClient(), 
+distributor = Distributor(everClient                    = getClient(), 
                           nonce                         = nonce, 
                           creatorAddress                = authority.ADDRESS,
                           ownerAddress                  = authority.ADDRESS,
@@ -119,19 +133,19 @@ distributor = Distributor(tonClient                     = getClient(),
                           presaleStartDate              = getNowTimestamp() - 1000,
                           saleStartDate                 = getNowTimestamp(),
                           price                         = EVER,
-                          collectionMetadataContents    = "",
+                          collectionMetadata            = "",
                           tokenPrimarySaleHappened      = True,
                           tokenMetadataIsMutable        = True,
                           tokenMasterEditionMaxSupply   = 0,
                           tokenMasterEditionPrintLocked = True,
                           tokenCreatorsPercent          = 500,
-                          tokenCreatorsShares           = [{"creatorAddress":authority.ADDRESS, "creatorShare":100}],
+                          tokenCreatorsShares           = [{"creatorAddress":authority.ADDRESS, "creatorShare":10000}],
                           signer                        = authority.SIGNER)
 
-collection = LiquidNFTCollection(tonClient=getClient(), nonce=nonce, 
+collection = LiquidCollection(everClient=getClient(), nonce=nonce, 
                                                         creatorAddress                = authority.ADDRESS,
                                                         ownerAddress                  = authority.ADDRESS,
-                                                        collectionMetadataContents    = "",
+                                                        collectionMetadata            = "",
                                                         tokenPrimarySaleHappened      = True,
                                                         tokenMetadataIsMutable        = True,
                                                         tokenMasterEditionMaxSupply   = 0,
@@ -139,15 +153,54 @@ collection = LiquidNFTCollection(tonClient=getClient(), nonce=nonce,
                                                         tokenCreatorsPercent          = 500,
                                                         tokenCreatorsShares           = [{"creatorAddress":authority.ADDRESS, "creatorShare":100}])
 
+debot = DistributorDebot(getClient(), authority.ADDRESS, distributor.ADDRESS)
 
-giverGive(getClient(), distributor.ADDRESS, DIME * 3)
+"""
 print(" MSIG:",  authority.ADDRESS)
-print("DISTR:",  distributor.ADDRESS)
 print("COLCT:",  collection.ADDRESS)
 
 #input("Press Enter to continue...")
 
+#giverGive(getClient(), collection.ADDRESS, DIME * 3)
+giverGive(getClient(), authority.ADDRESS, EVER * 100)
+
+authority.deploy()
+
+
+authority.sendTransaction(addressDest=collection.ADDRESS, value=EVER)
+print("balance:", authority.getBalance())
+result = collection.deploy()
+_unwrapMessages(result)
+print("balance:", authority.getBalance())
+
+result = collection.createNFT(msig=authority, 
+                              ownerAddress=authority.ADDRESS, 
+                              creatorAddress=authority.ADDRESS, 
+                              metadata=json.dumps(defaultMeta), 
+                              metadataAuthorityAddress=authority.ADDRESS)
+
+_unwrapMessages(result)
+print("balance:", authority.getBalance())
+"""
+
+
+
+print(" MSIG:",  authority.ADDRESS)
+print("DISTR:",  distributor.ADDRESS)
+print("COLCT:",  collection.ADDRESS)
+print("DEBOT:",  debot.ADDRESS)
+
+#input("Press Enter to continue...")
+
+giverGive(getClient(), distributor.ADDRESS, DIME * 3)
+giverGive(getClient(), authority.ADDRESS, EVER * 100)
+giverGive(getClient(), debot.ADDRESS, DIME * 3)
+
+authority.deploy()
 result = distributor.deploy()
+#debot.deploy()
+#debot.setABI(msig=authority, value=DIME)
+
 
 #msgArray = unwrapMessages(getClient(), result[0].transaction["out_msgs"], _getAbiArray())
 #pprint(msgArray)
@@ -163,19 +216,22 @@ for i in range(0, 20):
     meta["name"] = meta["name"] + str(i)
     metaList.append(json.dumps(meta))
 
+#print(metaList)
+
 distributor.addTokens(authority, metaList)
 distributor.lockTokens(authority)
-#pprint(distributor.getInfo(True, False))
+pprint(distributor.getInfo(True, False))
 
 #result = distributor.mintInternal(authority, authority.ADDRESS)
-result   = distributor.mintInternal(authority, authority.ADDRESS)
+result = distributor.mintInternal(authority, authority.ADDRESS)
+#_unwrapMessagesAndPrint(result)
+result = distributor.mintInternal(authority, authority.ADDRESS)
+#_unwrapMessagesAndPrint(result)
+result = distributor.mintInternal(authority, authority.ADDRESS)
+#_unwrapMessagesAndPrint(result)
 #_unwrapMessagesAndPrint(result)
 
-debot = DistributorDebot(getClient(), authority.ADDRESS, distributor.ADDRESS)
-giverGive(getClient(), debot.ADDRESS, DIME * 3)
-debot.deploy()
-debot.setABI(msig=authority, value=DIME)
-print("DEBOT:",  debot.ADDRESS)
+pprint(distributor.getInfo(True, False))
 
 """
 # ==============================================================================

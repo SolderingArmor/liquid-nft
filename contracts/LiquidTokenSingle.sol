@@ -6,11 +6,11 @@ pragma AbiHeader expire;
 //================================================================================
 //
 import "../interfaces/IBase.sol";
-import "../interfaces/ILiquidNFT.sol";
+import "../interfaces/ILiquidToken.sol";
 
 //================================================================================
 //
-contract LiquidNFTSingle is ILiquidNFT, IBase
+contract LiquidTokenSingle is ILiquidToken, IBase
 {
     //========================================
     // Error codes
@@ -29,13 +29,13 @@ contract LiquidNFTSingle is ILiquidNFT, IBase
 
     //========================================
     // Variables
-    uint256 static _nonce;                    //
+    uint256 static _tokenID;                  // Token ID for Single Token is random nonce;
     // Addresses
     address        _ownerAddress;             //
     address        _creatorAddress;           // Creation initiator address (buyer in case of Distributor usage)
     // Metadata
     bool           _primarySaleHappened;      //
-    string         _metadataContents;         //
+    string         _metadata;                 //
     bool           _metadataIsMutable;        //
     address        _metadataAuthorityAddress; //
     // Edition
@@ -52,7 +52,7 @@ contract LiquidNFTSingle is ILiquidNFT, IBase
 
     //========================================
     // Modifiers
-    function senderIsMaster()     internal view inline returns (bool) {    (address master, ) = calculateFutureNFTAddress(0);    return _checkSenderAddress(master);    }
+    function senderIsMaster()     internal view inline returns (bool) {    (address master, ) = calculateFutureTokenAddress(0);    return _checkSenderAddress(master);    }
 
     modifier onlyMaster     {    require(senderIsMaster(),                                ERROR_MESSAGE_SENDER_IS_NOT_MY_MASTER);        _;    }
     modifier onlyOwner      {    require(_checkSenderAddress(_ownerAddress),              ERROR_MESSAGE_SENDER_IS_NOT_MY_OWNER);         _;    }
@@ -61,27 +61,59 @@ contract LiquidNFTSingle is ILiquidNFT, IBase
 
     //========================================
     // Getters
-    function getInfo(bool includeMetadata) external view override returns (address        collectionAddress,
-                                                                           uint256        tokenID,
-                                                                           address        ownerAddress,
-                                                                           address        creatorAddress,
-                                                                           bool           primarySaleHappened,
-                                                                           string         metadataContents,
-                                                                           bool           metadataIsMutable,
-                                                                           address        metadataAuthorityAddress,
-                                                                           uint256        masterEditionSupply,
-                                                                           uint256        masterEditionMaxSupply,
-                                                                           bool           masterEditionPrintLocked,
-                                                                           uint256        editionNumber,
-                                                                           uint16         creatorsPercent,
-                                                                           CreatorShare[] creatorsShares)
+    function getBasicInfo(bool includeMetadata) external view override returns (
+        address collectionAddress,
+        uint256 tokenID,
+        address ownerAddress,
+        address creatorAddress,
+        string  metadata)
+    {
+        collectionAddress  = addressZero;
+        tokenID            = _tokenID;
+        ownerAddress       = _ownerAddress;
+        creatorAddress     = _creatorAddress;
+        metadata           = (includeMetadata ? _metadata : "{}");
+    }
+
+    function callBasicInfo(bool includeMetadata) external responsible view override returns (
+        address collectionAddress,
+        uint256 tokenID,
+        address ownerAddress,
+        address creatorAddress,
+        string  metadata)
+    {
+        return {value: 0, flag: 128}(
+            addressZero,
+            _tokenID,
+            _ownerAddress,
+            _creatorAddress,
+            includeMetadata ? _metadata : "{}");
+    }
+
+    //========================================
+    // 
+    function getInfo(bool includeMetadata) external view override returns (
+        address        collectionAddress,
+        uint256        tokenID,
+        address        ownerAddress,
+        address        creatorAddress,
+        bool           primarySaleHappened,
+        string         metadata,
+        bool           metadataIsMutable,
+        address        metadataAuthorityAddress,
+        uint256        masterEditionSupply,
+        uint256        masterEditionMaxSupply,
+        bool           masterEditionPrintLocked,
+        uint256        editionNumber,
+        uint16         creatorsPercent,
+        CreatorShare[] creatorsShares)
     {
         collectionAddress        = addressZero;
-        tokenID                  = 0;
+        tokenID                  = _tokenID;
         ownerAddress             = _ownerAddress;
         creatorAddress           = _creatorAddress;
         primarySaleHappened      = _primarySaleHappened;
-        metadataContents         = (includeMetadata ? _metadataContents : "");
+        metadata                 = (includeMetadata ? _metadata : "{}");
         metadataIsMutable        = _metadataIsMutable;
         metadataAuthorityAddress = _metadataAuthorityAddress;
         masterEditionSupply      = _masterEditionSupply;
@@ -92,27 +124,28 @@ contract LiquidNFTSingle is ILiquidNFT, IBase
         creatorsShares           = _creatorsShares;
     }
 
-    function callInfo(bool includeMetadata) external responsible view override reserve returns (address        collectionAddress,
-                                                                                                uint256        tokenID,
-                                                                                                address        ownerAddress,
-                                                                                                address        creatorAddress,
-                                                                                                bool           primarySaleHappened,
-                                                                                                string         metadataContents,
-                                                                                                bool           metadataIsMutable,
-                                                                                                address        metadataAuthorityAddress,
-                                                                                                uint256        masterEditionSupply,
-                                                                                                uint256        masterEditionMaxSupply,
-                                                                                                bool           masterEditionPrintLocked,
-                                                                                                uint256        editionNumber,
-                                                                                                uint16         creatorsPercent,
-                                                                                                CreatorShare[] creatorsShares)
+    function callInfo(bool includeMetadata) external responsible view override reserve returns (
+        address        collectionAddress,
+        uint256        tokenID,
+        address        ownerAddress,
+        address        creatorAddress,
+        bool           primarySaleHappened,
+        string         metadata,
+        bool           metadataIsMutable,
+        address        metadataAuthorityAddress,
+        uint256        masterEditionSupply,
+        uint256        masterEditionMaxSupply,
+        bool           masterEditionPrintLocked,
+        uint256        editionNumber,
+        uint16         creatorsPercent,
+        CreatorShare[] creatorsShares)
     {
         return {value: 0, flag: 128}(addressZero,
-                                     0,
+                                     _tokenID,
                                      _ownerAddress,
                                      _creatorAddress,
                                      _primarySaleHappened,
-                                     (includeMetadata ? _metadataContents : ""),
+                                     (includeMetadata ? _metadata : "{}"),
                                      _metadataIsMutable,
                                      _metadataAuthorityAddress,
                                      _masterEditionSupply,
@@ -125,12 +158,12 @@ contract LiquidNFTSingle is ILiquidNFT, IBase
 
     //========================================
     //
-    function calculateFutureNFTAddress(uint256 editionNumber) private inline view returns (address, TvmCell)
+    function calculateFutureTokenAddress(uint256 editionNumber) private inline view returns (address, TvmCell)
     {
         TvmCell stateInit = tvm.buildStateInit({
-            contr: LiquidNFTSingle,
+            contr: LiquidTokenSingle,
             varInit: {
-                _nonce:         _nonce,
+                _tokenID:       _tokenID,
                 _editionNumber: editionNumber
             },
             code: tvm.code()
@@ -144,7 +177,7 @@ contract LiquidNFTSingle is ILiquidNFT, IBase
     constructor(address        ownerAddress,
                 address        creatorAddress,
                 bool           primarySaleHappened,
-                string         metadataContents,
+                string         metadata,
                 bool           metadataIsMutable,
                 address        metadataAuthorityAddress,
                 uint256        masterEditionMaxSupply,
@@ -183,7 +216,7 @@ contract LiquidNFTSingle is ILiquidNFT, IBase
         _ownerAddress             = ownerAddress;
         _creatorAddress           = creatorAddress;
         _primarySaleHappened      = primarySaleHappened;
-        _metadataContents         = metadataContents;
+        _metadata                 = metadata;
         _metadataIsMutable        = metadataIsMutable;
         _metadataAuthorityAddress = metadataAuthorityAddress;
         _creatorsPercent          = creatorsPercent;
@@ -212,10 +245,10 @@ contract LiquidNFTSingle is ILiquidNFT, IBase
 
     //========================================
     //    
-    function setMetadata(string metadataContents) external override onlyAuthority reserve returnChange
+    function setMetadata(string metadata) external override onlyAuthority reserve returnChange
     {
         require(_metadataIsMutable, ERROR_MESSAGE_METADATA_IS_LOCKED);
-        _metadataContents = metadataContents;
+        _metadata = metadata;
         emit metadataChanged();
     }
 
@@ -239,19 +272,20 @@ contract LiquidNFTSingle is ILiquidNFT, IBase
                 _masterEditionMaxSupply > _masterEditionSupply, ERROR_MESSAGE_PRINT_SUPPLY_EXCEEDED);
         
         _masterEditionSupply += 1;
-        (address addr, TvmCell stateInit) = calculateFutureNFTAddress(_masterEditionSupply);
+        (address addr, TvmCell stateInit) = calculateFutureTokenAddress(_masterEditionSupply);
         emit printCreated(_masterEditionSupply, addr);
 
-        new LiquidNFTSingle{value: 0, flag: 128, stateInit: stateInit}(targetOwnerAddress,
-                                                                       _creatorAddress,
-                                                                       _primarySaleHappened,
-                                                                       _metadataContents,
-                                                                       _metadataIsMutable,
-                                                                       _metadataAuthorityAddress,
-                                                                       0,
-                                                                       true,
-                                                                       _creatorsPercent,
-                                                                       _creatorsShares);
+        new LiquidTokenSingle{value: 0, flag: 128, stateInit: stateInit}(
+            targetOwnerAddress,
+            _creatorAddress,
+            _primarySaleHappened,
+            _metadata,
+            _metadataIsMutable,
+            _metadataAuthorityAddress,
+            0,
+            true,
+            _creatorsPercent,
+            _creatorsShares);
     }
 
     //========================================
