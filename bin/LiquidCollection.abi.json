@@ -22,20 +22,6 @@
 		{
 			"name": "getBasicInfo",
 			"inputs": [
-				{"name":"includeMetadata","type":"bool"},
-				{"name":"includeTokenCode","type":"bool"}
-			],
-			"outputs": [
-				{"name":"nonce","type":"uint256"},
-				{"name":"tokenCode","type":"cell"},
-				{"name":"tokensIssued","type":"uint256"},
-				{"name":"ownerAddress","type":"address"},
-				{"name":"metadata","type":"string"}
-			]
-		},
-		{
-			"name": "callBasicInfo",
-			"inputs": [
 				{"name":"answerId","type":"uint32"},
 				{"name":"includeMetadata","type":"bool"},
 				{"name":"includeTokenCode","type":"bool"}
@@ -50,26 +36,6 @@
 		},
 		{
 			"name": "getInfo",
-			"inputs": [
-				{"name":"includeMetadata","type":"bool"},
-				{"name":"includeTokenCode","type":"bool"}
-			],
-			"outputs": [
-				{"name":"nonce","type":"uint256"},
-				{"name":"tokenCode","type":"cell"},
-				{"name":"tokensIssued","type":"uint256"},
-				{"name":"ownerAddress","type":"address"},
-				{"name":"metadata","type":"string"},
-				{"name":"tokenPrimarySaleHappened","type":"bool"},
-				{"name":"tokenMetadataIsMutable","type":"bool"},
-				{"name":"tokenMasterEditionMaxSupply","type":"uint256"},
-				{"name":"tokenMasterEditionPrintLocked","type":"bool"},
-				{"name":"tokenCreatorsPercent","type":"uint16"},
-				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"tokenCreatorsShares","type":"tuple[]"}
-			]
-		},
-		{
-			"name": "callInfo",
 			"inputs": [
 				{"name":"answerId","type":"uint32"},
 				{"name":"includeMetadata","type":"bool"},
@@ -93,7 +59,7 @@
 			"name": "createToken",
 			"inputs": [
 				{"name":"ownerAddress","type":"address"},
-				{"name":"creatorAddress","type":"address"},
+				{"name":"initiatorAddress","type":"address"},
 				{"name":"metadata","type":"string"},
 				{"name":"metadataAuthorityAddress","type":"address"}
 			],
@@ -105,9 +71,9 @@
 			"name": "createTokenExtended",
 			"inputs": [
 				{"name":"ownerAddress","type":"address"},
-				{"name":"creatorAddress","type":"address"},
-				{"name":"primarySaleHappened","type":"bool"},
+				{"name":"initiatorAddress","type":"address"},
 				{"name":"metadata","type":"string"},
+				{"name":"primarySaleHappened","type":"bool"},
 				{"name":"metadataIsMutable","type":"bool"},
 				{"name":"metadataAuthorityAddress","type":"address"},
 				{"name":"masterEditionMaxSupply","type":"uint256"},
@@ -139,7 +105,7 @@
 				{"name":"tokenID","type":"uint256"},
 				{"name":"tokenAddress","type":"address"},
 				{"name":"ownerAddress","type":"address"},
-				{"name":"creatorAddress","type":"address"}
+				{"name":"initiatorAddress","type":"address"}
 			],
 			"outputs": [
 			]

@@ -9,7 +9,7 @@ interface ILiquidCollectionBase
 {
     //========================================
     // Events
-    event mint(uint256 tokenID, address tokenAddress, address ownerAddress, address creatorAddress);
+    event mint(uint256 tokenID, address tokenAddress, address ownerAddress, address initiatorAddress);
     event ownerChanged(address from, address to);
 
     //========================================
@@ -25,14 +25,7 @@ interface ILiquidCollectionBase
     ///     ownerAddress   - Owner   address;
     ///     metadata       - Collection metadata; it has the same format as NFT metadata but keeps collection cover and information;
     //
-    function getBasicInfo(bool includeMetadata, bool includeTokenCode) external view returns(
-        uint256 nonce,
-        TvmCell tokenCode,
-        uint256 tokensIssued,
-        address ownerAddress,
-        string  metadata);
-
-    function callBasicInfo(bool includeMetadata, bool includeTokenCode) external view responsible returns(
+    function getBasicInfo(bool includeMetadata, bool includeTokenCode) external view responsible returns(
         uint256 nonce,
         TvmCell tokenCode,
         uint256 tokensIssued,

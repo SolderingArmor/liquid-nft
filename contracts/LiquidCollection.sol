@@ -43,22 +43,7 @@ contract LiquidCollection is IBase, ILiquidCollection
 
     //========================================
     // Getters
-    function getBasicInfo(bool includeMetadata, bool includeTokenCode) external view override returns(
-        uint256 nonce,
-        TvmCell tokenCode,
-        uint256 tokensIssued,
-        address ownerAddress,
-        string  metadata)
-    {
-        TvmCell empty;
-        nonce            = _nonce;
-        tokenCode        = (includeTokenCode ? _tokenCode : empty);
-        tokensIssued     = _tokensIssued;
-        ownerAddress     = _ownerAddress;
-        metadata = (includeMetadata ? _metadata : "{}");
-    }
-
-    function callBasicInfo(bool includeMetadata, bool includeTokenCode) external view responsible override returns(
+    function getBasicInfo(bool includeMetadata, bool includeTokenCode) external view responsible override returns(
         uint256 nonce,
         TvmCell tokenCode,
         uint256 tokensIssued,
@@ -66,43 +51,17 @@ contract LiquidCollection is IBase, ILiquidCollection
         string  metadata)
     {
         TvmCell empty;        
-        return {value: 0, flag: 128}(_nonce,
-                                     (includeTokenCode ? _tokenCode : empty),
-                                     _tokensIssued,
-                                     _ownerAddress,
-                                     includeMetadata ? _metadata : "{}");
+        return {value: 0, flag: 128}(
+            _nonce,
+            (includeTokenCode ? _tokenCode : empty),
+            _tokensIssued,
+            _ownerAddress,
+            includeMetadata ? _metadata : "{}");
     }
 
     //========================================
     //
-    function getInfo(bool includeMetadata, bool includeTokenCode) external view override returns(
-        uint256        nonce,
-        TvmCell        tokenCode,
-        uint256        tokensIssued,
-        address        ownerAddress,
-        string         metadata,
-        bool           tokenPrimarySaleHappened,
-        bool           tokenMetadataIsMutable,
-        uint256        tokenMasterEditionMaxSupply,
-        bool           tokenMasterEditionPrintLocked,
-        uint16         tokenCreatorsPercent,
-        CreatorShare[] tokenCreatorsShares)
-    {
-        TvmCell empty;
-        nonce                         = _nonce;
-        tokenCode                     = (includeTokenCode ? _tokenCode : empty);
-        tokensIssued                  = _tokensIssued;
-        ownerAddress                  = _ownerAddress;
-        metadata                      = (includeMetadata ? _metadata : "{}");
-        tokenPrimarySaleHappened      = _tokenPrimarySaleHappened;
-        tokenMetadataIsMutable        = _tokenMetadataIsMutable;
-        tokenMasterEditionMaxSupply   = _tokenMasterEditionMaxSupply;
-        tokenMasterEditionPrintLocked = _tokenMasterEditionPrintLocked;
-        tokenCreatorsPercent          = _tokenCreatorsPercent;
-        tokenCreatorsShares           = _tokenCreatorsShares;
-    }
-
-    function callInfo(bool includeMetadata, bool includeTokenCode) external view override responsible reserve returns(
+    function getInfo(bool includeMetadata, bool includeTokenCode) external view override responsible reserve returns(
         uint256        nonce,
         TvmCell        tokenCode,
         uint256        tokensIssued,
@@ -116,17 +75,18 @@ contract LiquidCollection is IBase, ILiquidCollection
         CreatorShare[] tokenCreatorsShares)
     {
         TvmCell empty;        
-        return {value: 0, flag: 128}(_nonce,
-                                     (includeTokenCode ? _tokenCode : empty),
-                                     _tokensIssued,
-                                     _ownerAddress,
-                                     (includeMetadata ? _metadata : "{}"),
-                                     _tokenPrimarySaleHappened,
-                                     _tokenMetadataIsMutable,
-                                     _tokenMasterEditionMaxSupply,
-                                     _tokenMasterEditionPrintLocked,
-                                     _tokenCreatorsPercent,
-                                     _tokenCreatorsShares);
+        return {value: 0, flag: 128}(
+            _nonce,
+            (includeTokenCode ? _tokenCode : empty),
+            _tokensIssued,
+            _ownerAddress,
+            (includeMetadata ? _metadata : "{}"),
+            _tokenPrimarySaleHappened,
+            _tokenMetadataIsMutable,
+            _tokenMasterEditionMaxSupply,
+            _tokenMasterEditionPrintLocked,
+            _tokenCreatorsPercent,
+            _tokenCreatorsShares);
     }
 
     //========================================
@@ -192,9 +152,9 @@ contract LiquidCollection is IBase, ILiquidCollection
     //
     function _createToken(
         address        ownerAddress,
-        address        creatorAddress,
-        bool           primarySaleHappened,
+        address        initiatorAddress,
         string         metadata,
+        bool           primarySaleHappened,
         bool           metadataIsMutable,
         address        metadataAuthorityAddress,
         uint256        masterEditionMaxSupply,
@@ -205,13 +165,13 @@ contract LiquidCollection is IBase, ILiquidCollection
         require(msg.value >= gasToValue(400000, address(this).wid), ERROR_VALUE_NOT_ENOUGH_TO_MINT); // TODO: adjust value
 
         (address addr, TvmCell stateInit) = calculateFutureTokenAddress(_tokensIssued);
-        emit mint(_tokensIssued, addr, ownerAddress, creatorAddress);
+        emit mint(_tokensIssued, addr, ownerAddress, initiatorAddress);
 
         new LiquidToken{value: 0, flag: 128, stateInit: stateInit}(
             ownerAddress,
-            creatorAddress,
-            primarySaleHappened,
+            initiatorAddress,
             metadata,
+            primarySaleHappened,
             metadataIsMutable,
             metadataAuthorityAddress,
             masterEditionMaxSupply,
@@ -227,15 +187,15 @@ contract LiquidCollection is IBase, ILiquidCollection
     //
     function createToken(
         address ownerAddress,
-        address creatorAddress,
+        address initiatorAddress,
         string  metadata,
         address metadataAuthorityAddress) external override onlyOwner reserve returns (address tokenAddress)
     {
        tokenAddress = _createToken(
             ownerAddress,
-            creatorAddress,
-            _tokenPrimarySaleHappened,
+            initiatorAddress,
             metadata,
+            _tokenPrimarySaleHappened,
             _tokenMetadataIsMutable,
             metadataAuthorityAddress,
             _tokenMasterEditionMaxSupply,
@@ -248,9 +208,9 @@ contract LiquidCollection is IBase, ILiquidCollection
     //
     function createTokenExtended(
         address        ownerAddress,
-        address        creatorAddress,
-        bool           primarySaleHappened,
+        address        initiatorAddress,
         string         metadata,
+        bool           primarySaleHappened,
         bool           metadataIsMutable,
         address        metadataAuthorityAddress,
         uint256        masterEditionMaxSupply,
@@ -260,9 +220,9 @@ contract LiquidCollection is IBase, ILiquidCollection
     {
         tokenAddress = _createToken(
             ownerAddress,
-            creatorAddress,
-            primarySaleHappened,
+            initiatorAddress,
             metadata,
+            primarySaleHappened,
             metadataIsMutable,
             metadataAuthorityAddress,
             masterEditionMaxSupply,

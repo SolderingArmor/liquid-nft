@@ -32,20 +32,7 @@ interface ILiquidCollection is ILiquidCollectionBase
     ///     tokenCreatorsPercent          - Default value for `tokenCreatorsPercent`          param when minting Token (see `ILiquidToken.sol` for details);
     ///     tokenCreatorsShares           - Default value for `tokenCreatorsShares`           param when minting Token (see `ILiquidToken.sol` for details);
     //
-    function getInfo(bool includeMetadata, bool includeTokenCode) external view returns(
-        uint256        nonce,
-        TvmCell        tokenCode,
-        uint256        tokensIssued,
-        address        ownerAddress,
-        string         metadata,
-        bool           tokenPrimarySaleHappened,
-        bool           tokenMetadataIsMutable,
-        uint256        tokenMasterEditionMaxSupply,
-        bool           tokenMasterEditionPrintLocked,
-        uint16         tokenCreatorsPercent,
-        CreatorShare[] tokenCreatorsShares);
-
-    function callInfo(bool includeMetadata, bool includeTokenCode) external view responsible returns(
+    function getInfo(bool includeMetadata, bool includeTokenCode) external view responsible returns(
         uint256        nonce,
         TvmCell        tokenCode,
         uint256        tokensIssued,
@@ -89,8 +76,8 @@ interface ILiquidCollection is ILiquidCollectionBase
     function createTokenExtended(
         address        ownerAddress,
         address        creatorAddress,
-        bool           primarySaleHappened,
         string         metadata,
+        bool           primarySaleHappened,
         bool           metadataIsMutable,
         address        metadataAuthorityAddress,
         uint256        masterEditionMaxSupply,

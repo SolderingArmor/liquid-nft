@@ -231,6 +231,9 @@ result = distributor.mintInternal(authority, authority.ADDRESS)
 #_unwrapMessagesAndPrint(result)
 #_unwrapMessagesAndPrint(result)
 
+token = LiquidToken(everClient=getClient(), collectionAddress=collection.ADDRESS, tokenID=0, editionNumber=0)
+print(token.getBasicInfo())
+
 pprint(distributor.getInfo(True, False))
 
 """

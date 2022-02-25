@@ -10,7 +10,7 @@ import "../interfaces/ILiquidTokenBase.sol";
 //================================================================================
 //
 // Metadata JSON format:
-// type                - "Liquid Token".
+// schema_type         - "Liquid Token".
 // name                - Human readable name of the asset.
 // symbol              - Human readable symbol of the asset (if any).
 // description         - Human readable description of the asset.
@@ -33,7 +33,7 @@ import "../interfaces/ILiquidTokenBase.sol";
 //
 // EXAMPLE:
 //{
-//    "type": "Liquid Token",
+//    "schema_type": "Liquid Token",
 //    "name": "Everscale NFT",
 //    "symbol": "",
 //    "description": "Never gonna give you up!",
@@ -97,9 +97,9 @@ interface ILiquidToken is ILiquidTokenBase
     ///     collectionAddress        - Token collection address;
     ///     tokenID                  - Token ID;
     ///     ownerAddress             - NFT owner;
-    ///     creatorAddress           - NFT creator;
-    ///     primarySaleHappened      - If 100% of the first sale should be distributed between the creators list;
+    ///     authroityAddress         - NFT authority that can change the owner and authority itself, needed for staking, farming, auctions, etc.;
     ///     metadata                 - Token metadata in JSON format;
+    ///     primarySaleHappened      - If 100% of the first sale should be distributed between the creators list;
     ///     metadataIsMutable        - Boolean if metadata is mutable and can be changed;
     ///     metadataAuthorityAddress - Address of an authority who can update metadata (if it is mutable);
     ///     masterEditionSupply      - Current amount of copies if the token can be printed;
@@ -109,13 +109,13 @@ interface ILiquidToken is ILiquidTokenBase
     ///     creatorsPercent          - Defines how many percent creators get when NFT is sold on a secondary market;
     ///     creatorsShares           - Defines a list of creators with their shares;
     //
-    function getInfo(bool includeMetadata) external view returns (
+    function getInfo(bool includeMetadata) external view responsible returns (
         address        collectionAddress,
         uint256        tokenID,
         address        ownerAddress,
-        address        creatorAddress,
-        bool           primarySaleHappened,
+        address        authorityAddress,
         string         metadata,
+        bool           primarySaleHappened,
         bool           metadataIsMutable,
         address        metadataAuthorityAddress,
         uint256        masterEditionSupply,
@@ -125,30 +125,6 @@ interface ILiquidToken is ILiquidTokenBase
         uint16         creatorsPercent,
         CreatorShare[] creatorsShares);
 
-    function callInfo(bool includeMetadata) external responsible view returns (
-        address        collectionAddress,
-        uint256        tokenID,
-        address        ownerAddress,
-        address        creatorAddress,
-        bool           primarySaleHappened,
-        string         metadata,
-        bool           metadataIsMutable,
-        address        metadataAuthorityAddress,
-        uint256        masterEditionSupply,
-        uint256        masterEditionMaxSupply,
-        bool           masterEditionPrintLocked,
-        uint256        editionNumber,
-        uint16         creatorsPercent,
-        CreatorShare[] creatorsShares);
-
-    //========================================
-    /// @notice Changes NFT owner and flips `primarySaleHappened` flag to `true`;
-    ///         Auctions need to use this function after a successfull sale.
-    ///
-    /// @param ownerAddress - New owner address;
-    //
-    function setOwnerWithPrimarySale(address ownerAddress) external;
-    
     //========================================
     /// @notice Changes NFT metadata if `metadataIsMutable` is `true`;
     ///

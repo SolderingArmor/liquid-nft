@@ -38,10 +38,91 @@ This standard:
 ## Specification
 
 ## Token
+
+### Callbacks
+
+#### onSetAuthorityCallback
+
+When `Authority` of the `Token` is changed this callback is called with new `Authority` address as a receiver. This callback can start a chain of events needed after `Authority` has been changed.
+
+Every entity that wants to act as `Authority` needs to implement this interface, otherwise transaction will bounce and `Authority` will be reset.
+
+``` solidity
+interface ILiquidTokenSetAuthorityCallback
+{
+        function onSetAuthorityCallback(
+            address collectionAddress,
+            uint256 tokenID,
+            address ownerAddress,
+            address authorityAddress) external;
+}
+```
+
 ### Methods
 
+#### getBasicInfo
+
+Returns `Token` information.
+
+| Parameter | Description |
+|-----------|-------------|
+| `includeMetadata` | If metadata should be included |
+
+Return values:
+
+| Parameter | Description |
+|-----------|-------------|
+| `collectionAddress` | Token collection address |
+| `tokenID`           | Token ID |
+| `ownerAddress`      | Token `Owner` |
+| `authorityAddress`  | Token `Authority`; when set it can change the Owner and itself, used as a temporary manager for auctions, staking, farming, etc. |
+| `metadata`          | Token metadata in JSON format |
+
+``` solidity
+function getBasicInfo(bool includeMetadata) external view responsible returns (
+    address        collectionAddress,
+    uint256        tokenID,
+    address        ownerAddress,
+    address        authorityAddress,
+    string         metadata);
+```
+
+#### setOwner
+
+Changes Token `Owner`. Current `Owner` can change the `Owner` only if `_authorityAddress` is zero, otherwise only `Authority` can change `Owner`.
+
+Resets `Authority` after successfull change.
+
+| Parameter | Description |
+|-----------|-------------|
+| `ownerAddress` | New `Owner` address |
+
+``` solidity
+function setOwner(address ownerAddress) external;
+```
+
+#### setAuthority
+
+Changes Token `Authority`. Current `Owner` can change the `Authority` only if `_authorityAddress` is zero, otherwise only `Authority` can change `Authority`.
+
+| Parameter | Description |
+|-----------|-------------|
+| `authorityAddress` | New `Authority` address |
+
+``` solidity
+function setAuthority(address authorityAddress) external;
+```
+
+#### destroy
+
+Destroys Token.
+WARNING! This can not be undone!
+
+``` solidity
+function destroy() external;
+```
+
 #### getInfo
-#### callInfo
 
 Returns `Token` information.
 
@@ -55,17 +136,17 @@ Return values:
 |-----------|-------------|
 | `collectionAddress`        | Token collection address |
 | `tokenID`                  | Token ID |
-| `ownerAddress`             | Token owner |
-| `creatorAddress`           | Token creator |
-| `primarySaleHappened`      | If 100% of the first sale should be distributed between the creators list |
+| `ownerAddress`             | NFT owner |
+| `creatorAddress`           | NFT creator |
 | `metadata`                 | Token metadata in JSON format |
+| `primarySaleHappened`      | If 100% of the first sale should be distributed between the creators list |
 | `metadataIsMutable`        | Boolean if metadata is mutable and can be changed |
 | `metadataAuthorityAddress` | Address of an authority who can update metadata (if it is mutable) |
 | `masterEditionSupply`      | Current amount of copies if the token can be printed |
 | `masterEditionMaxSupply`   | Maximum amount of copies if the token can be printed |
 | `masterEditionPrintLocked` | If print is available or locked |
 | `editionNumber`            | Master edition (original token) always has `editionNumber` = 0, printed versions have 1+ |
-| `creatorsPercent`          | Defines how many percent creators get when Token is sold on a secondary market |
+| `creatorsPercent`          | Defines how many percent creators get when NFT is sold on a secondary market |
 | `creatorsShares`           | Defines a list of creators with their shares |
 
 ``` solidity
@@ -75,13 +156,13 @@ struct CreatorShare
     uint16  creatorShare;   // 100 = 1% share
 }
 
-function getInfo(bool includeMetadata) external view returns (
+function getInfo(bool includeMetadata) external view responsible returns (
     address        collectionAddress,
     uint256        tokenID,
     address        ownerAddress,
-    address        creatorAddress,
-    bool           primarySaleHappened,
+    address        authorityAddress,
     string         metadata,
+    bool           primarySaleHappened,
     bool           metadataIsMutable,
     address        metadataAuthorityAddress,
     uint256        masterEditionSupply,
@@ -90,51 +171,11 @@ function getInfo(bool includeMetadata) external view returns (
     uint256        editionNumber,
     uint16         creatorsPercent,
     CreatorShare[] creatorsShares);
-
-function callInfo(bool includeMetadata) external responsible view returns (
-    address        collectionAddress,
-    uint256        tokenID,
-    address        ownerAddress,
-    address        creatorAddress,
-    bool           primarySaleHappened,
-    string         metadata,
-    bool           metadataIsMutable,
-    address        metadataAuthorityAddress,
-    uint256        masterEditionSupply,
-    uint256        masterEditionMaxSupply,
-    bool           masterEditionPrintLocked,
-    uint256        editionNumber,
-    uint16         creatorsPercent,
-    CreatorShare[] creatorsShares);
-```
-
-#### setOwner
-
-Changes Token owner.
-
-| Parameter | Description |
-|-----------|-------------|
-| `ownerAddress` | New owner address |
-
-``` solidity
-function setOwner(address ownerAddress) external;
-```
-
-#### setOwnerWithPrimarySale
-
-Changes Token owner and flips `primarySaleHappened` flag to `true`.
-
-| Parameter | Description |
-|-----------|-------------|
-| `ownerAddress` | New owner address |
-
-``` solidity
-function setOwnerWithPrimarySale(address ownerAddress) external;
 ```
 
 #### setMetadata
 
-Changes Token metadata if `metadataIsMutable` is `true`.
+Changes NFT metadata if `metadataIsMutable` is `true`.
 
 | Parameter | Description |
 |-----------|-------------|
@@ -146,7 +187,7 @@ function setMetadata(string metadata) external;
 
 #### lockMetadata
 
-Locks Token metadata.
+Locks NFT metadata.
 
 ``` solidity
 function lockMetadata() external;
@@ -154,12 +195,12 @@ function lockMetadata() external;
 
 #### printCopy
 
-Prints a copy of the Token.
-Sometimes when you need multiple copies of the same Token you can.. well..
-create multiple copies of the same Token (like coins or medals etc.) 
-and they will technically different Tokens but at the same time logically 
+Prints a copy of the NFT.
+Sometimes when you need multiple copies of the same NFT you can.. well..
+create multiple copies of the same NFT (like coins or medals etc.) 
+and they will technically different NFTs but at the same time logically 
 they will be the same. Printing allows you to have multiple copies of the 
-same Token (with the same `tokenID`) distributed to any number of people. Every
+same NFT (with the same `tokenID`) distributed to any number of people. Every
 one of them will be able to sell or transfer their own copy.
 
 | Parameter | Description |
@@ -172,7 +213,7 @@ function printCopy(address targetOwnerAddress) external;
 
 #### lockPrint
 
-Locks Token printing.
+Locks NFT printing.
 
 ``` solidity
 function lockPrint() external;
@@ -180,7 +221,7 @@ function lockPrint() external;
 
 #### destroy
 
-Destroys Token.
+Destroys NFT.
 WARNING! This can not be undone!
 
 ``` solidity
@@ -191,20 +232,45 @@ function destroy() external;
 
 #### ownerChanged
 
+Emitted when Token `Owner` is changed.
+
+| Parameter | Description |
+|-----------|-------------|
+| `from` | Old `Owner` address |
+| `to`   | New `Owner` address |
+
+``` solidity
+event ownerChanged(address from, address to);
+```
+
+#### authorityChanged
+
+Emitted when Token `Authority` is changed.
+
+| Parameter | Description |
+|-----------|-------------|
+| `from` | Old `Authority` address |
+| `to`   | New `Authority` address |
+
+``` solidity
+event authorityChanged(address from, address to);
+```
+
+#### destroyed
+
 Emitted when Token owner is changed.
 
 | Parameter | Description |
 |-----------|-------------|
-| `from` | Old owner address |
-| `to`   | New owner address |
+| `ownerAddress` | Owner address who performed destroy operation |
 
 ``` solidity
-event ownerChanged(address oldOwnerAddress, address newOwnerAddress);
+event destroyed(address ownerAddress);
 ```
 
 #### metadataChanged
 
-Emitted when Token metadata is changed.
+Emitted when NFT metadata is changed.
 
 ``` solidity
 event metadataChanged();
@@ -212,7 +278,7 @@ event metadataChanged();
 
 #### printCreated
 
-Emitted when Token copy is printed.
+Emitted when NFT copy is printed.
 
 | Parameter | Description |
 |-----------|-------------|
@@ -226,10 +292,55 @@ event printCreated(uint256 printID, address printAddress);
 ## Collection
 ### Methods
 
-#### getInfo
-#### callInfo
+#### getBasicInfo
 
-Returns `Collection` information
+Returns collection information
+
+| Parameter | Description |
+|-----------|-------------|
+| `includeMetadata`  | If metadata should be included |
+| `includeTokenCode` | If token code should be included |
+
+Return values:
+
+| Parameter | Description |
+|-----------|-------------|
+| `nonce`        | Random nonce to have random collection address |
+| `tokenCode`    | TvmCell of the token code |
+| `tokensIssued` | Number of tokens this collection created |
+| `ownerAddress` | Owner address |
+| `metadata`     | Collection metadata; it has the same format as Token metadata but keeps collection cover and information |
+
+``` solidity
+struct CreatorShare
+{
+    address creatorAddress; // 
+    uint16  creatorShare;   // 100 = 1% share
+}
+
+function getBasicInfo(bool includeMetadata, bool includeTokenCode) external view responsible returns(
+    uint256        nonce,
+    TvmCell        tokenCode,
+    uint256        tokensIssued,
+    address        ownerAddress,
+    string         metadata);
+```
+
+#### setOwner
+
+Changes Collection `Owner`.
+
+| Parameter | Description |
+|-----------|-------------|
+| `ownerAddress` | New `Owner` address |
+
+``` solidity
+function setOwner(address ownerAddress) external;
+```
+
+#### getInfo
+
+Returns collection information
 
 | Parameter | Description |
 |-----------|-------------|
@@ -244,13 +355,13 @@ Return values:
 | `tokenCode`                      | TvmCell of the token code |
 | `tokensIssued`                   | Number of tokens this collection created |
 | `ownerAddress`                   | Owner address |
-| `metadata`                       | Collection metadata; it has the same format as Token metadata but keeps collection cover and information |
-| `tokenPrimarySaleHappened`       | Default value for `tokenPrimarySaleHappened` param when minting Token (see `ILiquidToken.sol` for details) |
-| `tokenMetadataIsMutable`         | Default value for `tokenMetadataIsMutable` param when minting Token (see `ILiquidToken.sol` for details) |
-| `tokenMasterEditionMaxSupply`    | Default value for `tokenMasterEditionMaxSupply` param when minting Token (see `ILiquidToken.sol` for details) |
-| `tokenMasterEditionPrintLocked`  | Default value for `tokenMasterEditionPrintLocked` param when minting Token (see `ILiquidToken.sol` for details) |
-| `tokenCreatorsPercent`           | Default value for `tokenCreatorsPercent` param when minting Token (see `ILiquidToken.sol` for details) |
-| `tokenCreatorsShares`            | Default value for `tokenCreatorsShares` param when minting Token (see `ILiquidToken.sol` for details) |
+| `metadata`                       | Collection metadata; it has the same format as NFT metadata but keeps collection cover and information |
+| `tokenPrimarySaleHappened`       | Default value for `tokenPrimarySaleHappened` param when minting NFT (see `ILiquidToken.sol` for details) |
+| `tokenMetadataIsMutable`         | Default value for `tokenMetadataIsMutable` param when minting NFT (see `ILiquidToken.sol` for details) |
+| `tokenMasterEditionMaxSupply`    | Default value for `tokenMasterEditionMaxSupply` param when minting NFT (see `ILiquidToken.sol` for details) |
+| `tokenMasterEditionPrintLocked`  | Default value for `tokenMasterEditionPrintLocked` param when minting NFT (see `ILiquidToken.sol` for details) |
+| `tokenCreatorsPercent`           | Default value for `tokenCreatorsPercent` param when minting NFT (see `ILiquidToken.sol` for details) |
+| `tokenCreatorsShares`            | Default value for `tokenCreatorsShares` param when minting NFT (see `ILiquidToken.sol` for details) |
 
 ``` solidity
 struct CreatorShare
@@ -259,7 +370,7 @@ struct CreatorShare
     uint16  creatorShare;   // 100 = 1% share
 }
 
-function getInfo(bool includeMetadata, bool includeTokenCode) external view returns(
+function getInfo(bool includeMetadata, bool includeTokenCode) external view responsible returns(
     uint256        nonce,
     TvmCell        tokenCode,
     uint256        tokensIssued,
@@ -271,31 +382,6 @@ function getInfo(bool includeMetadata, bool includeTokenCode) external view retu
     bool           tokenMasterEditionPrintLocked,
     uint16         tokenCreatorsPercent,
     CreatorShare[] tokenCreatorsShares);
-
-function callInfo(bool includeMetadata, bool includeTokenCode) external view responsible returns(
-    uint256        nonce,
-    TvmCell        tokenCode,
-    uint256        tokensIssued,
-    address        ownerAddress,
-    string         metadata,
-    bool           tokenPrimarySaleHappened,
-    bool           tokenMetadataIsMutable,
-    uint256        tokenMasterEditionMaxSupply,
-    bool           tokenMasterEditionPrintLocked,
-    uint16         tokenCreatorsPercent,
-    CreatorShare[] tokenCreatorsShares);
-```
-
-#### setOwner
-
-Changes Collection owner.
-
-| Parameter | Description |
-|-----------|-------------|
-| `ownerAddress` | New owner address |
-
-``` solidity
-function setOwner(address ownerAddress) external;
 ```
 
 #### createToken
@@ -305,14 +391,14 @@ Creates new Token.
 | Parameter | Description |
 |-----------|-------------|
 | `ownerAddress`             | New owner address |
-| `creatorAddress`           | Creator address |
+| `initiatorAddress`         | Address of who initiated mint operation |
 | `metadata`                 | Metadata in JSON format (see `ILiquidToken.sol`) |
 | `metadataAuthorityAddress` | Metadata authority that can update metadata if needed |
 
 ``` solidity
-function createToken(
+function createNFT(
     address ownerAddress,
-    address creatorAddress,
+    address initiatorAddress,
     string  metadata,
     address metadataAuthorityAddress) external returns (address tokenAddress);
 ```
@@ -324,7 +410,7 @@ Creates new Token, extended version with all parameters.
 | Parameter | Description |
 |-----------|-------------|
 | `ownerAddress`             | New owner address |
-| `creatorAddress`           | Creator address |
+| `initiatorAddress`         | Address of who initiated mint operation |
 | `primarySaleHappened`      | If 100% of the first sale should be distributed between the creators list |
 | `metadata`                 | Metadata in JSON format (see `ILiquidToken.sol`) |
 | `metadataIsMutable`        | If metadata can be changed by authority |
@@ -343,7 +429,7 @@ struct CreatorShare
 
 function createTokenExtended(
     address        ownerAddress,
-    address        creatorAddress,
+    address        initiatorAddress,
     bool           primarySaleHappened,
     string         metadata,
     bool           metadataIsMutable,
@@ -356,19 +442,32 @@ function createTokenExtended(
 
 ### Events
 
+#### ownerChanged
+
+Emitted when Collection `Owner` is changed.
+
+| Parameter | Description |
+|-----------|-------------|
+| `from` | Old owner address |
+| `to`   | New owner address |
+
+``` solidity
+event ownerChanged(address from, address to);
+```
+
 #### mint
 
 Minted new Token.
 
 | Parameter | Description |
 |-----------|-------------|
-| `tokenID`        | ID of the new Token |
-| `tokenAddress`   | Address of a new Token |
-| `ownerAddress`   | Address of a new Token Owner |
-| `creatorAddress` | Address of a new Token Creator |
+| `tokenID`          | ID of the new Token |
+| `tokenAddress`     | Address of a new Token |
+| `ownerAddress`     | Address of a new Token `Owner` |
+| `initiatorAddress` | Address of who initiated mint operation |
 
 ``` solidity
-event mint(uint256 tokenID, address tokenAddress, address ownerAddress, address creatorAddress);
+event mint(uint256 tokenID, address tokenAddress, address ownerAddress, address initiatorAddress);
 ```
 
 # Distributor 

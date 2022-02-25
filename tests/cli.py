@@ -21,6 +21,7 @@ from   contract_DistributorDebot    import DistributorDebot
 # 
 def getClient():
     return TonClient(config=ClientConfig(network=NetworkConfig(endpoints=getApiEndpoints(True))))
+    #return TonClient(config=ClientConfig(network=NetworkConfig(server_address="https://gql.custler.net")))
 
 # ==============================================================================
 # 
@@ -35,7 +36,7 @@ distributorConfig = {
     "presaleStartDate": "",
     "saleStartDate": "",
     "price": EVER,
-    "collectionMetadataContents" : {
+    "collectionMetadata" : {
         "name": "",
         "symbol": "",
         "description": "",
@@ -59,7 +60,7 @@ distributorConfig = {
 # 
 def getWallet() -> Multisig:
     fileExists = os.path.exists("msig.json")
-    msig = Multisig(tonClient=getClient(), signer=loadSigner("msig.json"))
+    msig = Multisig(everClient=getClient(), signer=loadSigner("msig.json"))
     return msig
 
 def walletExists() -> bool:
@@ -92,7 +93,7 @@ def getDistributor() -> Distributor:
         data = f.read()
     config = ast.literal_eval(data)
 
-    distributor = Distributor(tonClient                     = getClient(), 
+    distributor = Distributor(everClient                    = getClient(), 
                               nonce                         = config["nonce"], 
                               creatorAddress                = config["creatorAddress"],
                               ownerAddress                  = config["ownerAddress"],
@@ -101,7 +102,7 @@ def getDistributor() -> Distributor:
                               presaleStartDate              = config["presaleStartDate"],
                               saleStartDate                 = config["saleStartDate"],
                               price                         = config["price"],
-                              collectionMetadataContents    = config["collectionMetadataContents"],
+                              collectionMetadata            = config["collectionMetadata"],
                               tokenPrimarySaleHappened      = config["tokenPrimarySaleHappened"],
                               tokenMetadataIsMutable        = config["tokenMetadataIsMutable"],
                               tokenMasterEditionMaxSupply   = config["tokenMasterEditionMaxSupply"],
@@ -253,7 +254,6 @@ def distributor():
     """
     Shows Distributor address, status and balance.
     """
-
     if not distributorExists():
         click.echo(f"Distributor config not found. Please run \"init\" first.")
         return

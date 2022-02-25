@@ -7,9 +7,9 @@
 			"name": "constructor",
 			"inputs": [
 				{"name":"ownerAddress","type":"address"},
-				{"name":"creatorAddress","type":"address"},
-				{"name":"primarySaleHappened","type":"bool"},
+				{"name":"initiatorAddress","type":"address"},
 				{"name":"metadata","type":"string"},
+				{"name":"primarySaleHappened","type":"bool"},
 				{"name":"metadataIsMutable","type":"bool"},
 				{"name":"metadataAuthorityAddress","type":"address"},
 				{"name":"masterEditionMaxSupply","type":"uint256"},
@@ -23,19 +23,6 @@
 		{
 			"name": "getBasicInfo",
 			"inputs": [
-				{"name":"includeMetadata","type":"bool"}
-			],
-			"outputs": [
-				{"name":"collectionAddress","type":"address"},
-				{"name":"tokenID","type":"uint256"},
-				{"name":"ownerAddress","type":"address"},
-				{"name":"creatorAddress","type":"address"},
-				{"name":"metadata","type":"string"}
-			]
-		},
-		{
-			"name": "callBasicInfo",
-			"inputs": [
 				{"name":"answerId","type":"uint32"},
 				{"name":"includeMetadata","type":"bool"}
 			],
@@ -43,35 +30,13 @@
 				{"name":"collectionAddress","type":"address"},
 				{"name":"tokenID","type":"uint256"},
 				{"name":"ownerAddress","type":"address"},
-				{"name":"creatorAddress","type":"address"},
+				{"name":"authorityAddress","type":"address"},
 				{"name":"metadata","type":"string"}
 			]
 		},
 		{
 			"name": "getInfo",
 			"inputs": [
-				{"name":"includeMetadata","type":"bool"}
-			],
-			"outputs": [
-				{"name":"collectionAddress","type":"address"},
-				{"name":"tokenID","type":"uint256"},
-				{"name":"ownerAddress","type":"address"},
-				{"name":"creatorAddress","type":"address"},
-				{"name":"primarySaleHappened","type":"bool"},
-				{"name":"metadata","type":"string"},
-				{"name":"metadataIsMutable","type":"bool"},
-				{"name":"metadataAuthorityAddress","type":"address"},
-				{"name":"masterEditionSupply","type":"uint256"},
-				{"name":"masterEditionMaxSupply","type":"uint256"},
-				{"name":"masterEditionPrintLocked","type":"bool"},
-				{"name":"editionNumber","type":"uint256"},
-				{"name":"creatorsPercent","type":"uint16"},
-				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"creatorsShares","type":"tuple[]"}
-			]
-		},
-		{
-			"name": "callInfo",
-			"inputs": [
 				{"name":"answerId","type":"uint32"},
 				{"name":"includeMetadata","type":"bool"}
 			],
@@ -79,9 +44,9 @@
 				{"name":"collectionAddress","type":"address"},
 				{"name":"tokenID","type":"uint256"},
 				{"name":"ownerAddress","type":"address"},
-				{"name":"creatorAddress","type":"address"},
-				{"name":"primarySaleHappened","type":"bool"},
+				{"name":"authorityAddress","type":"address"},
 				{"name":"metadata","type":"string"},
+				{"name":"primarySaleHappened","type":"bool"},
 				{"name":"metadataIsMutable","type":"bool"},
 				{"name":"metadataAuthorityAddress","type":"address"},
 				{"name":"masterEditionSupply","type":"uint256"},
@@ -101,9 +66,9 @@
 			]
 		},
 		{
-			"name": "setOwnerWithPrimarySale",
+			"name": "setAuthority",
 			"inputs": [
-				{"name":"ownerAddress","type":"address"}
+				{"name":"authorityAddress","type":"address"}
 			],
 			"outputs": [
 			]
@@ -178,6 +143,15 @@
 			]
 		},
 		{
+			"name": "authorityChanged",
+			"inputs": [
+				{"name":"from","type":"address"},
+				{"name":"to","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "destroyed",
 			"inputs": [
 				{"name":"ownerAddress","type":"address"}
@@ -194,7 +168,7 @@
 		{"name":"_collectionAddress","type":"address"},
 		{"name":"_tokenID","type":"uint256"},
 		{"name":"_ownerAddress","type":"address"},
-		{"name":"_creatorAddress","type":"address"},
+		{"name":"_authorityAddress","type":"address"},
 		{"name":"_primarySaleHappened","type":"bool"},
 		{"name":"_metadata","type":"string"},
 		{"name":"_metadataIsMutable","type":"bool"},
