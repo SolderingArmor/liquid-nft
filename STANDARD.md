@@ -54,7 +54,7 @@ interface ILiquidTokenSetAuthorityCallback
             address collectionAddress,
             uint256 tokenID,
             address ownerAddress,
-            address authorityAddress) external;
+            TvmCell payload) external;
 }
 ```
 
@@ -108,9 +108,10 @@ Changes Token `Authority`. Current `Owner` can change the `Authority` only if `_
 | Parameter | Description |
 |-----------|-------------|
 | `authorityAddress` | New `Authority` address |
+| `payload`          | Custom payload for custom `Authority` logic |
 
 ``` solidity
-function setAuthority(address authorityAddress) external;
+function setAuthority(address authorityAddress, TvmCell payload) external;
 ```
 
 #### destroy

@@ -68,7 +68,8 @@
 		{
 			"name": "setAuthority",
 			"inputs": [
-				{"name":"authorityAddress","type":"address"}
+				{"name":"authorityAddress","type":"address"},
+				{"name":"payload","type":"cell"}
 			],
 			"outputs": [
 			]

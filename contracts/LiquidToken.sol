@@ -210,7 +210,7 @@ contract LiquidToken is ILiquidToken, IBase
     
     //========================================
     //    
-    function setAuthority(address authorityAddress) external override reserve
+    function setAuthority(address authorityAddress, TvmCell payload) external override reserve
     {
         // If Authority is set Owner can't change anything
         if(_authorityAddress != addressZero){    require(senderIsAuthority(), ERROR_MESSAGE_SENDER_IS_NOT_MY_AUTHORITY);    }
@@ -223,7 +223,7 @@ contract LiquidToken is ILiquidToken, IBase
             _collectionAddress,
             _tokenID,
             _ownerAddress,
-            _authorityAddress);
+            payload);
     }
 
     //========================================
@@ -284,6 +284,20 @@ contract LiquidToken is ILiquidToken, IBase
     function destroy() external override onlyOwner
     {
         selfdestruct(_ownerAddress);
+    }
+    
+    //========================================
+    //
+    onBounce(TvmSlice slice) external reserve
+    {
+        uint32 functionId = slice.decode(uint32);
+        if (functionId == tvm.functionId(ILiquidTokenSetAuthorityCallback.onSetAuthorityCallback)) 
+        {
+            emit authorityChanged(_authorityAddress, addressZero);
+            _authorityAddress = addressZero; // Reset Authority
+
+            _ownerAddress.transfer(0, true, 128);
+        }
     }
 }
 

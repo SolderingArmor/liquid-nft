@@ -21,7 +21,7 @@ interface ILiquidTokenSetAuthorityCallback
             address collectionAddress,
             uint256 tokenID,
             address ownerAddress,
-            address authorityAddress) external;
+            TvmCell payload) external;
 }
 
 //================================================================================
@@ -73,7 +73,7 @@ interface ILiquidTokenBase
     ///
     /// @param authorityAddress - New Authority address;
     //
-    function setAuthority(address authorityAddress) external;
+    function setAuthority(address authorityAddress, TvmCell payload) external;
     
     //========================================
     /// @notice Destroys Token;
