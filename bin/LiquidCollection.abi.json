@@ -10,7 +10,7 @@
 				{"name":"initiatorAddress","type":"address"},
 				{"name":"metadata","type":"string"},
 				{"name":"tokenPrimarySaleHappened","type":"bool"},
-				{"name":"tokenMetadataIsMutable","type":"bool"},
+				{"name":"tokenMetadataLocked","type":"bool"},
 				{"name":"tokenMasterEditionMaxSupply","type":"uint256"},
 				{"name":"tokenMasterEditionPrintLocked","type":"bool"},
 				{"name":"tokenCreatorsPercent","type":"uint16"},
@@ -48,11 +48,35 @@
 				{"name":"ownerAddress","type":"address"},
 				{"name":"metadata","type":"string"},
 				{"name":"tokenPrimarySaleHappened","type":"bool"},
-				{"name":"tokenMetadataIsMutable","type":"bool"},
+				{"name":"tokenMetadataLocked","type":"bool"},
 				{"name":"tokenMasterEditionMaxSupply","type":"uint256"},
 				{"name":"tokenMasterEditionPrintLocked","type":"bool"},
 				{"name":"tokenCreatorsPercent","type":"uint16"},
 				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"tokenCreatorsShares","type":"tuple[]"}
+			]
+		},
+		{
+			"name": "getTokenAddress",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"targetTokenID","type":"uint256"}
+			],
+			"outputs": [
+				{"name":"tokenID","type":"uint256"},
+				{"name":"tokenAddress","type":"address"}
+			]
+		},
+		{
+			"name": "getPrintAddress",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"targetTokenID","type":"uint256"},
+				{"name":"targetPrintID","type":"uint256"}
+			],
+			"outputs": [
+				{"name":"tokenID","type":"uint256"},
+				{"name":"printID","type":"uint256"},
+				{"name":"tokenAddress","type":"address"}
 			]
 		},
 		{
@@ -73,11 +97,11 @@
 				{"name":"ownerAddress","type":"address"},
 				{"name":"initiatorAddress","type":"address"},
 				{"name":"metadata","type":"string"},
-				{"name":"primarySaleHappened","type":"bool"},
-				{"name":"metadataIsMutable","type":"bool"},
+				{"name":"metadataLocked","type":"bool"},
 				{"name":"metadataAuthorityAddress","type":"address"},
-				{"name":"masterEditionMaxSupply","type":"uint256"},
-				{"name":"masterEditionPrintLocked","type":"bool"},
+				{"name":"primarySaleHappened","type":"bool"},
+				{"name":"printMaxSupply","type":"uint256"},
+				{"name":"printLocked","type":"bool"},
 				{"name":"creatorsPercent","type":"uint16"},
 				{"components":[{"name":"creatorAddress","type":"address"},{"name":"creatorShare","type":"uint16"}],"name":"creatorsShares","type":"tuple[]"}
 			],
@@ -131,7 +155,7 @@
 		{"name":"_ownerAddress","type":"address"},
 		{"name":"_metadata","type":"string"},
 		{"name":"_tokenPrimarySaleHappened","type":"bool"},
-		{"name":"_tokenMetadataIsMutable","type":"bool"},
+		{"name":"_tokenMetadataLocked","type":"bool"},
 		{"name":"_tokenMasterEditionMaxSupply","type":"uint256"},
 		{"name":"_tokenMasterEditionPrintLocked","type":"bool"},
 		{"name":"_tokenCreatorsPercent","type":"uint16"},

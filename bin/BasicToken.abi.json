@@ -1,0 +1,99 @@
+{
+	"ABI version": 2,
+	"version": "2.2",
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"},
+				{"name":"authorityAddress","type":"address"},
+				{"name":"initiatorAddress","type":"address"},
+				{"name":"metadata","type":"string"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getBasicInfo",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"includeMetadata","type":"bool"}
+			],
+			"outputs": [
+				{"name":"collectionAddress","type":"address"},
+				{"name":"tokenID","type":"uint256"},
+				{"name":"ownerAddress","type":"address"},
+				{"name":"authorityAddress","type":"address"},
+				{"name":"metadata","type":"string"}
+			]
+		},
+		{
+			"name": "setOwner",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "setAuthority",
+			"inputs": [
+				{"name":"authorityAddress","type":"address"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "destroy",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		}
+	],
+	"data": [
+		{"key":1,"name":"_collectionAddress","type":"address"},
+		{"key":2,"name":"_tokenID","type":"uint256"}
+	],
+	"events": [
+		{
+			"name": "ownerChanged",
+			"inputs": [
+				{"name":"from","type":"address"},
+				{"name":"to","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "authorityChanged",
+			"inputs": [
+				{"name":"from","type":"address"},
+				{"name":"to","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "destroyed",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		}
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_gasReserve","type":"uint128"},
+		{"name":"_collectionAddress","type":"address"},
+		{"name":"_tokenID","type":"uint256"},
+		{"name":"_ownerAddress","type":"address"},
+		{"name":"_authorityAddress","type":"address"},
+		{"name":"_metadata","type":"string"}
+	]
+}

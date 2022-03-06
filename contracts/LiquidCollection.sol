@@ -31,7 +31,7 @@ contract LiquidCollection is IBase, ILiquidCollection
     string         _metadata;                      // Collection metadata, for the collection cover and info;
     // Token configuration
     bool           _tokenPrimarySaleHappened;      // Default value when minting, usually true for degens;
-    bool           _tokenMetadataIsMutable;        // 
+    bool           _tokenMetadataLocked;        // 
     uint256        _tokenMasterEditionMaxSupply;   // Unlimited when 0;
     bool           _tokenMasterEditionPrintLocked; //
     uint16         _tokenCreatorsPercent;          // 1% = 100, 100% = 10000;
@@ -68,7 +68,7 @@ contract LiquidCollection is IBase, ILiquidCollection
         address        ownerAddress,
         string         metadata,
         bool           tokenPrimarySaleHappened,
-        bool           tokenMetadataIsMutable,
+        bool           tokenMetadataLocked,
         uint256        tokenMasterEditionMaxSupply,
         bool           tokenMasterEditionPrintLocked,
         uint16         tokenCreatorsPercent,
@@ -82,7 +82,7 @@ contract LiquidCollection is IBase, ILiquidCollection
             _ownerAddress,
             (includeMetadata ? _metadata : "{}"),
             _tokenPrimarySaleHappened,
-            _tokenMetadataIsMutable,
+            _tokenMetadataLocked,
             _tokenMasterEditionMaxSupply,
             _tokenMasterEditionPrintLocked,
             _tokenCreatorsPercent,
@@ -91,14 +91,14 @@ contract LiquidCollection is IBase, ILiquidCollection
 
     //========================================
     // 
-    function calculateFutureTokenAddress(uint256 tokenID) private inline view returns (address, TvmCell)
+    function calculateFutureTokenAddress(uint256 tokenID, uint256 printID) private inline view returns (address, TvmCell)
     {
         TvmCell stateInit = tvm.buildStateInit({
             contr: LiquidToken,
             varInit: {
                 _collectionAddress: address(this), //
                 _tokenID:           tokenID,       //
-                _editionNumber:     0              // Collection creates only masters, not prints
+                _printID:           printID        // Collection creates only masters, not prints
             },
             code: _tokenCode
         });
@@ -108,15 +108,31 @@ contract LiquidCollection is IBase, ILiquidCollection
 
     //========================================
     //
+    function getTokenAddress(uint256 targetTokenID) external view responsible override returns (uint256 tokenID, address tokenAddress)
+    {
+        (address addr, ) = calculateFutureTokenAddress(targetTokenID, 0);
+        return {value: 0, flag: 128}(targetTokenID, addr);
+    }
+
+    //========================================
+    //
+    function getPrintAddress(uint256 targetTokenID, uint256 targetPrintID) external view responsible returns (uint256 tokenID, uint256 printID, address tokenAddress)
+    {
+        (address addr, ) = calculateFutureTokenAddress(targetTokenID, targetPrintID);
+        return {value: 0, flag: 128}(targetTokenID, targetPrintID, addr);
+    }
+
+    //========================================
+    //
     constructor(address        ownerAddress, 
                 address        initiatorAddress, 
                 string         metadata, 
                 bool           tokenPrimarySaleHappened,
-                bool           tokenMetadataIsMutable,
+                bool           tokenMetadataLocked,
                 uint256        tokenMasterEditionMaxSupply,
                 bool           tokenMasterEditionPrintLocked,
                 uint16         tokenCreatorsPercent,
-                CreatorShare[] tokenCreatorsShares) public
+                CreatorShare[] tokenCreatorsShares) public reserve returnChangeTo(initiatorAddress)
     {
         if(msg.isExternal){    tvm.accept();    }
         require(ownerAddress != addressZero,      ERROR_MESSAGE_OWNER_CAN_NOT_BE_ZERO);
@@ -129,8 +145,6 @@ contract LiquidCollection is IBase, ILiquidCollection
         }
         require(shareSum == 10000, ERROR_MESSAGE_SHARE_NOT_EQUAL_100);
 
-        _reserve();
-
         // Collection configuration
         _tokensIssued = 0;
         _ownerAddress = ownerAddress;
@@ -138,14 +152,11 @@ contract LiquidCollection is IBase, ILiquidCollection
 
         // Token configuration
         _tokenPrimarySaleHappened      = tokenPrimarySaleHappened;
-        _tokenMetadataIsMutable        = tokenMetadataIsMutable;
+        _tokenMetadataLocked           = tokenMetadataLocked;
         _tokenMasterEditionMaxSupply   = tokenMasterEditionMaxSupply;
         _tokenMasterEditionPrintLocked = tokenMasterEditionPrintLocked;
         _tokenCreatorsPercent          = tokenCreatorsPercent;
         _tokenCreatorsShares           = tokenCreatorsShares;
-        
-        // Return the change
-        initiatorAddress.transfer(0, false, 128);
     }
 
     //========================================
@@ -154,28 +165,28 @@ contract LiquidCollection is IBase, ILiquidCollection
         address        ownerAddress,
         address        initiatorAddress,
         string         metadata,
-        bool           primarySaleHappened,
-        bool           metadataIsMutable,
+        bool           metadataLocked,
         address        metadataAuthorityAddress,
-        uint256        masterEditionMaxSupply,
-        bool           masterEditionPrintLocked,
+        bool           primarySaleHappened,
+        uint256        printMaxSupply,
+        bool           printLocked,
         uint16         creatorsPercent,
         CreatorShare[] creatorsShares) internal returns (address)
     {
         require(msg.value >= gasToValue(400000, address(this).wid), ERROR_VALUE_NOT_ENOUGH_TO_MINT); // TODO: adjust value
 
-        (address addr, TvmCell stateInit) = calculateFutureTokenAddress(_tokensIssued);
+        (address addr, TvmCell stateInit) = calculateFutureTokenAddress(_tokensIssued, 0);
         emit mint(_tokensIssued, addr, ownerAddress, initiatorAddress);
 
         new LiquidToken{value: 0, flag: 128, stateInit: stateInit}(
             ownerAddress,
             initiatorAddress,
             metadata,
-            primarySaleHappened,
-            metadataIsMutable,
+            metadataLocked,
             metadataAuthorityAddress,
-            masterEditionMaxSupply,
-            masterEditionPrintLocked,
+            primarySaleHappened,
+            printMaxSupply,
+            printLocked,
             creatorsPercent,
             creatorsShares);
 
@@ -195,9 +206,9 @@ contract LiquidCollection is IBase, ILiquidCollection
             ownerAddress,
             initiatorAddress,
             metadata,
-            _tokenPrimarySaleHappened,
-            _tokenMetadataIsMutable,
+            _tokenMetadataLocked,
             metadataAuthorityAddress,
+            _tokenPrimarySaleHappened,
             _tokenMasterEditionMaxSupply,
             _tokenMasterEditionPrintLocked,
             _tokenCreatorsPercent,
@@ -210,11 +221,11 @@ contract LiquidCollection is IBase, ILiquidCollection
         address        ownerAddress,
         address        initiatorAddress,
         string         metadata,
-        bool           primarySaleHappened,
-        bool           metadataIsMutable,
+        bool           metadataLocked,
         address        metadataAuthorityAddress,
-        uint256        masterEditionMaxSupply,
-        bool           masterEditionPrintLocked,
+        bool           primarySaleHappened,
+        uint256        printMaxSupply,
+        bool           printLocked,
         uint16         creatorsPercent,
         CreatorShare[] creatorsShares) external override onlyOwner reserve returns (address tokenAddress)
     {
@@ -222,11 +233,11 @@ contract LiquidCollection is IBase, ILiquidCollection
             ownerAddress,
             initiatorAddress,
             metadata,
-            primarySaleHappened,
-            metadataIsMutable,
+            metadataLocked,
             metadataAuthorityAddress,
-            masterEditionMaxSupply,
-            masterEditionPrintLocked,
+            primarySaleHappened,
+            printMaxSupply,
+            printLocked,
             creatorsPercent,
             creatorsShares);
     }

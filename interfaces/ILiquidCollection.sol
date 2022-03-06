@@ -5,12 +5,12 @@ pragma AbiHeader expire;
 
 //================================================================================
 //
-import "../interfaces/ILiquidCollectionBase.sol";
+import "../interfaces/IBasicCollection.sol";
 import "../interfaces/ILiquidToken.sol";
 
 //================================================================================
 //
-interface ILiquidCollection is ILiquidCollectionBase
+interface ILiquidCollection is IBasicCollection
 {
     //========================================
     /// @notice Returns collection information;
@@ -26,9 +26,9 @@ interface ILiquidCollection is ILiquidCollectionBase
     ///     metadata                      - Collection metadata; it has the same format as NFT metadata but keeps collection cover and information;
     ///     tokenCreatorAddress           - Default value for `creatorAddress`                param when minting Token (see `ILiquidToken.sol` for details);
     ///     tokenPrimarySaleHappened      - Default value for `tokenPrimarySaleHappened`      param when minting Token (see `ILiquidToken.sol` for details);
-    ///     tokenMetadataIsMutable        - Default value for `tokenMetadataIsMutable`        param when minting Token (see `ILiquidToken.sol` for details);
-    ///     tokenMasterEditionMaxSupply   - Default value for `tokenMasterEditionMaxSupply`   param when minting Token (see `ILiquidToken.sol` for details);
-    ///     tokenMasterEditionPrintLocked - Default value for `tokenMasterEditionPrintLocked` param when minting Token (see `ILiquidToken.sol` for details);
+    ///     tokenMetadataLocked           - Default value for `tokenMetadataLocked`           param when minting Token (see `ILiquidToken.sol` for details);
+    ///     tokenPrintMaxSupply           - Default value for `tokenPrintMaxSupply`           param when minting Token (see `ILiquidToken.sol` for details);
+    ///     tokenpPrintLocked             - Default value for `tokenPrintLocked`              param when minting Token (see `ILiquidToken.sol` for details);
     ///     tokenCreatorsPercent          - Default value for `tokenCreatorsPercent`          param when minting Token (see `ILiquidToken.sol` for details);
     ///     tokenCreatorsShares           - Default value for `tokenCreatorsShares`           param when minting Token (see `ILiquidToken.sol` for details);
     //
@@ -39,9 +39,9 @@ interface ILiquidCollection is ILiquidCollectionBase
         address        ownerAddress,
         string         metadata,
         bool           tokenPrimarySaleHappened,
-        bool           tokenMetadataIsMutable,
-        uint256        tokenMasterEditionMaxSupply,
-        bool           tokenMasterEditionPrintLocked,
+        bool           tokenMetadataLocked,
+        uint256        tokenPrintMaxSupply,
+        bool           tokenpPrintLocked,
         uint16         tokenCreatorsPercent,
         CreatorShare[] tokenCreatorsShares);
 
@@ -63,25 +63,25 @@ interface ILiquidCollection is ILiquidCollectionBase
     /// @notice Creates new NFT, extended version with all parameters;
     ///
     /// @param ownerAddress             - New owner address;
-    /// @param creatorAddress           - Creator   address;
-    /// @param primarySaleHappened      - If 100% of the first sale should be distributed between the creators list;
+    /// @param initiatorAddress         - Transaction initiator address;
     /// @param metadata                 - Metadata in JSON format (see `ILiquidNFT.sol`);
-    /// @param metadataIsMutable        - If metadata can be changed by authority;
+    /// @param metadataLocked           - If metadata can be changed by authority;
     /// @param metadataAuthorityAddress - Metadata authority that can update metadata if needed;
-    /// @param masterEditionMaxSupply   - >0 if token should be printable;
-    /// @param masterEditionPrintLocked - If printing is locked for this token;
+    /// @param primarySaleHappened      - If 100% of the first sale should be distributed between the creators list;
+    /// @param printMaxSupply           - >0 if token should be printable;
+    /// @param printLocked              - If printing is locked for this token;
     /// @param creatorsPercent          - Secondary market sale percent that creators receive after each trade;
     /// @param creatorsShares           - List of creators with their shares;
     //
     function createTokenExtended(
         address        ownerAddress,
-        address        creatorAddress,
+        address        initiatorAddress,
         string         metadata,
-        bool           primarySaleHappened,
-        bool           metadataIsMutable,
+        bool           metadataLocked,
         address        metadataAuthorityAddress,
-        uint256        masterEditionMaxSupply,
-        bool           masterEditionPrintLocked,
+        bool           primarySaleHappened,
+        uint256        printMaxSupply,
+        bool           printLocked,
         uint16         creatorsPercent,
         CreatorShare[] creatorsShares) external returns (address tokenAddress);
 }

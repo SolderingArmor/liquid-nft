@@ -6,33 +6,28 @@ pragma AbiHeader expire;
 //================================================================================
 //
 // Metadata JSON format:
-// schema_type - Human readable type/substandard of metadata. Based on the type any external (off-chain) service will know how to parse it. Example:
+// schema - Human readable type/substandard of metadata. Based on the type any external (off-chain) service will know how to parse it. Example:
 //     "Some Token Type" - ...;
 //
 // EXAMPLE:
 //{
-//    "schema_type": "Some Token Type"
+//    "schema": "Some Token Type"
 //}
 //================================================================================
 //
-interface ILiquidTokenSetAuthorityCallback
+interface IBasicTokenSetAuthorityCallback
 {
-        function onSetAuthorityCallback(
-            address collectionAddress,
-            uint256 tokenID,
-            address ownerAddress,
-            TvmCell payload) external;
+    function onSetAuthorityCallback(
+        address collectionAddress,
+        uint256 tokenID,
+        address ownerAddress,
+        address initiatorAddress,
+        TvmCell payload) external;
 }
 
 //================================================================================
 //
-// TODO: add authority and set authority callback
-// set manager callback bounce is important
-// add events for authority
-// can remove creator from standard
-// field TYPE in json - rename
-// reset authority on bounce callback
-interface ILiquidTokenBase
+interface IBasicToken
 {
     //========================================
     // Events
@@ -48,8 +43,8 @@ interface ILiquidTokenBase
     /// Return values:
     ///     collectionAddress - Token collection address;
     ///     tokenID           - Token ID;
-    ///     ownerAddress      - Token owner;
-    ///     authorityAddress  - Token Authority; when set it can change the Owner and itself, used as a temporary manager for auctions, staking, farming, etc.
+    ///     ownerAddress      - Token Owner;
+    ///     authorityAddress  - Token Authority; used as a temporary manager for auctions, staking, farming, etc.
     ///     metadata          - Token metadata in JSON format;
     //
     function getBasicInfo(bool includeMetadata) external view responsible returns (
@@ -61,6 +56,7 @@ interface ILiquidTokenBase
 
     //========================================
     /// @notice Changes Token Owner;
+    ///         Restrictions: only Aythority can call this function.
     ///
     /// @param ownerAddress - New Owner address;
     //
@@ -69,7 +65,8 @@ interface ILiquidTokenBase
     //========================================
     /// @notice Changes Token Authority and calls `onSetAuthorityCallback` with 
     ///         new Authority as message receiver. Bounce should always be true,
-    ///         if this Callback bounces we need to reset authority value to `addressZero`.
+    ///         if this Callback bounces we need to reset authority value to `ownerAddress`.
+    ///         Restrictions: only Aythority can call this function.
     ///
     /// @param authorityAddress - New Authority address;
     //

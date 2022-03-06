@@ -54,6 +54,7 @@ interface ILiquidTokenSetAuthorityCallback
             address collectionAddress,
             uint256 tokenID,
             address ownerAddress,
+            address initiatorAddress,
             TvmCell payload) external;
 }
 ```

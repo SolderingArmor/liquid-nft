@@ -1,0 +1,100 @@
+{
+	"ABI version": 2,
+	"version": "2.2",
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"},
+				{"name":"initiatorAddress","type":"address"},
+				{"name":"metadata","type":"string"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getBasicInfo",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"includeMetadata","type":"bool"},
+				{"name":"includeTokenCode","type":"bool"}
+			],
+			"outputs": [
+				{"name":"nonce","type":"uint256"},
+				{"name":"tokenCode","type":"cell"},
+				{"name":"tokensIssued","type":"uint256"},
+				{"name":"ownerAddress","type":"address"},
+				{"name":"metadata","type":"string"}
+			]
+		},
+		{
+			"name": "getTokenAddress",
+			"inputs": [
+				{"name":"answerId","type":"uint32"},
+				{"name":"targetTokenID","type":"uint256"}
+			],
+			"outputs": [
+				{"name":"tokenID","type":"uint256"},
+				{"name":"tokenAddress","type":"address"}
+			]
+		},
+		{
+			"name": "createToken",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"},
+				{"name":"authorityAddress","type":"address"},
+				{"name":"initiatorAddress","type":"address"},
+				{"name":"metadata","type":"string"}
+			],
+			"outputs": [
+				{"name":"tokenAddress","type":"address"}
+			]
+		},
+		{
+			"name": "setOwner",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		}
+	],
+	"data": [
+		{"key":1,"name":"_nonce","type":"uint256"},
+		{"key":2,"name":"_tokenCode","type":"cell"}
+	],
+	"events": [
+		{
+			"name": "mint",
+			"inputs": [
+				{"name":"tokenID","type":"uint256"},
+				{"name":"tokenAddress","type":"address"},
+				{"name":"ownerAddress","type":"address"},
+				{"name":"initiatorAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "ownerChanged",
+			"inputs": [
+				{"name":"from","type":"address"},
+				{"name":"to","type":"address"}
+			],
+			"outputs": [
+			]
+		}
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_gasReserve","type":"uint128"},
+		{"name":"_nonce","type":"uint256"},
+		{"name":"_tokenCode","type":"cell"},
+		{"name":"_tokensIssued","type":"uint256"},
+		{"name":"_ownerAddress","type":"address"},
+		{"name":"_metadata","type":"string"}
+	]
+}

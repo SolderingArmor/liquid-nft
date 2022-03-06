@@ -4,8 +4,8 @@ pragma AbiHeader pubkey;
 pragma AbiHeader expire;
 
 //================================================================================
-// Creating Tokens shouldn't be standardized.
-interface ILiquidCollectionBase
+// Creating Tokens is not standardized because creation .
+interface IBasicCollection
 {
     //========================================
     // Events
@@ -33,9 +33,16 @@ interface ILiquidCollectionBase
         string  metadata);
 
     //========================================
-    /// @notice Changes Collection owner;
+    /// @notice Calculated desired Token address;
     ///
-    /// @param ownerAddress - New owner address;
+    /// @param targetTokenID - Token ID;
+    //
+    function getTokenAddress(uint256 targetTokenID) external view responsible returns (uint256 tokenID, address tokenAddress);
+
+    //========================================
+    /// @notice Changes Collection Owner;
+    ///
+    /// @param ownerAddress - New Owner address;
     //
     function setOwner(address ownerAddress) external;
 }

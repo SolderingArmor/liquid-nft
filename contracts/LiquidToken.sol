@@ -17,9 +17,9 @@ contract LiquidToken is ILiquidToken, IBase
     uint constant ERROR_MESSAGE_SENDER_IS_NOT_MY_OWNER              = 100;
     uint constant ERROR_MESSAGE_SENDER_IS_NOT_MY_AUTHORITY          = 101;
     uint constant ERROR_MESSAGE_SENDER_IS_NOT_MY_COLLECTION         = 102;
-    uint constant ERROR_MESSAGE_SENDER_IS_NOT_MY_METADATA_AUTHORITY = 103;
-    uint constant ERROR_MESSAGE_SENDER_IS_NOT_MY_MASTER             = 104;
-    uint constant ERROR_MESSAGE_OWNER_CAN_NOT_BE_ZERO               = 105;
+    uint constant ERROR_MESSAGE_OWNER_CAN_NOT_BE_ZERO               = 103;
+    uint constant ERROR_MESSAGE_SENDER_IS_NOT_MY_METADATA_AUTHORITY = 104;
+    uint constant ERROR_MESSAGE_SENDER_IS_NOT_MY_MASTER             = 105;
     uint constant ERROR_MESSAGE_METADATA_IS_LOCKED                  = 200;
     uint constant ERROR_MESSAGE_PRINT_IS_LOCKED                     = 201;
     uint constant ERROR_MESSAGE_PRINT_SUPPLY_EXCEEDED               = 202;
@@ -38,13 +38,13 @@ contract LiquidToken is ILiquidToken, IBase
     // Metadata
     bool           _primarySaleHappened;      //
     string         _metadata;                 //
-    bool           _metadataIsMutable;        //
+    bool           _metadataLocked;           //
     address        _metadataAuthorityAddress; //
     // Edition
-    uint256        _masterEditionSupply;      //
-    uint256        _masterEditionMaxSupply;   // Unlimited when 0;
-    bool           _masterEditionPrintLocked; //
-    uint256 static _editionNumber;            // Always 0 for regular NFTs, >0 for printed editions;
+    uint256        _printSupply;              //
+    uint256        _printMaxSupply;           // Unlimited when 0;
+    bool           _printLocked;              //
+    uint256 static _printID;                  // Always 0 for regular NFTs, >0 for printed editions;
     // Money
     uint16         _creatorsPercent;          // 1% = 100, 100% = 10000;
     CreatorShare[] _creatorsShares;           //         
@@ -90,13 +90,13 @@ contract LiquidToken is ILiquidToken, IBase
         address        ownerAddress,
         address        authorityAddress,
         string         metadata,
-        bool           primarySaleHappened,
-        bool           metadataIsMutable,
+        bool           metadataLocked,
         address        metadataAuthorityAddress,
-        uint256        masterEditionSupply,
-        uint256        masterEditionMaxSupply,
-        bool           masterEditionPrintLocked,
-        uint256        editionNumber,
+        bool           primarySaleHappened,
+        uint256        printSupply,
+        uint256        printMaxSupply,
+        bool           printLocked,
+        uint256        printID,
         uint16         creatorsPercent,
         CreatorShare[] creatorsShares)
     {
@@ -105,28 +105,28 @@ contract LiquidToken is ILiquidToken, IBase
             _tokenID,
             _ownerAddress,
             _authorityAddress,
-            (includeMetadata ? _metadata : "{}"),
-            _primarySaleHappened,
-            _metadataIsMutable,
+            includeMetadata ? _metadata : "{}",
+            _metadataLocked,
             _metadataAuthorityAddress,
-            _masterEditionSupply,
-            _masterEditionMaxSupply,
-            _masterEditionPrintLocked,
-            _editionNumber,
+            _primarySaleHappened,
+            _printSupply,
+            _printMaxSupply,
+            _printLocked,
+            _printID,
             _creatorsPercent,
             _creatorsShares);
     }
 
     //========================================
     //
-    function calculateFutureTokenAddress(uint256 tokenID, uint256 editionNumber) private inline view returns (address, TvmCell)
+    function calculateFutureTokenAddress(uint256 tokenID, uint256 printID) private inline view returns (address, TvmCell)
     {
         TvmCell stateInit = tvm.buildStateInit({
             contr: LiquidToken,
             varInit: {
                 _collectionAddress: _collectionAddress,
                 _tokenID:           tokenID,
-                _editionNumber:     editionNumber
+                _printID:           printID
             },
             code: tvm.code()
         });
@@ -139,31 +139,31 @@ contract LiquidToken is ILiquidToken, IBase
     constructor(address        ownerAddress,
                 address        initiatorAddress,
                 string         metadata,
-                bool           primarySaleHappened,
-                bool           metadataIsMutable,
+                bool           metadataLocked,
                 address        metadataAuthorityAddress,
-                uint256        masterEditionMaxSupply,
-                bool           masterEditionPrintLocked,
+                bool           primarySaleHappened,
+                uint256        printMaxSupply,
+                bool           printLocked,
                 uint16         creatorsPercent,
-                CreatorShare[] creatorsShares) public reserve
+                CreatorShare[] creatorsShares) public reserve returnChangeTo(initiatorAddress)
     {
         // Checking who is printing or creating, it should be collection or master copy
-        if(_editionNumber == 0)
+        if(_printID == 0)
         {
             require(senderIsCollection(), ERROR_MESSAGE_SENDER_IS_NOT_MY_COLLECTION);
 
-            _masterEditionSupply      = 0;
-            _masterEditionMaxSupply   = masterEditionMaxSupply;
-            _masterEditionPrintLocked = masterEditionPrintLocked;
+            _printSupply    = 0;
+            _printMaxSupply = printMaxSupply;
+            _printLocked    = printLocked;
         }
         else
         {
             require(senderIsMaster(), ERROR_MESSAGE_SENDER_IS_NOT_MY_MASTER);
         
             // Printed versions can't reprint
-            _masterEditionSupply      = 0;
-            _masterEditionMaxSupply   = 0;
-            _masterEditionPrintLocked = true;
+            _printSupply    = 0;
+            _printMaxSupply = 0;
+            _printLocked    = true;
         }
 
         require(creatorsShares.length <= 5, ERROR_MESSAGE_TOO_MANY_CREATORS);
@@ -176,61 +176,49 @@ contract LiquidToken is ILiquidToken, IBase
         require(shareSum == 10000, ERROR_MESSAGE_SHARE_NOT_EQUAL_100);
 
         _ownerAddress             = ownerAddress;
-        _authorityAddress         = addressZero;
+        _authorityAddress         = ownerAddress;
         _metadata                 = metadata;
-        _primarySaleHappened      = primarySaleHappened;
-        _metadataIsMutable        = metadataIsMutable;
+        _metadataLocked           = metadataLocked;
         _metadataAuthorityAddress = metadataAuthorityAddress;
+        _primarySaleHappened      = primarySaleHappened;
         _creatorsPercent          = creatorsPercent;
         _creatorsShares           = creatorsShares;
-
-        // Return the change
-        initiatorAddress.transfer(0, true, 128);
     }
     
     //========================================
     //    
     function setOwner(address ownerAddress) external override reserve returnChange
     {
-        // If Authority is set Owner can't change anything
-        if(_authorityAddress != addressZero){    require(senderIsAuthority(), ERROR_MESSAGE_SENDER_IS_NOT_MY_AUTHORITY);    }
-        else                                {    require(senderIsOwner(),     ERROR_MESSAGE_SENDER_IS_NOT_MY_OWNER);        }
-        
-        if(_authorityAddress != addressZero)
-        {
-            emit authorityChanged(_authorityAddress, addressZero);
-            _authorityAddress = addressZero;  // Changing Owner always resets Authority.
-        }
+        emit ownerChanged    (_ownerAddress,     ownerAddress);
+        emit authorityChanged(_authorityAddress, ownerAddress);
 
-        emit ownerChanged(_ownerAddress, ownerAddress);
-        _ownerAddress = ownerAddress; //
-        _primarySaleHappened = true;  // Any owner change automatically means flipping primary sale, 
-                                      // because auctioning the Token won't change the owner (_authorityAddress is changed instead).
+        _ownerAddress        = ownerAddress; //
+        _authorityAddress    = ownerAddress; // Changing Owner always resets Authority.
+        _primarySaleHappened = true;         // Any owner change automatically means flipping primary sale, 
+                                             // because auctioning the Token won't change the owner (_authorityAddress is changed instead).
     }
     
     //========================================
     //    
-    function setAuthority(address authorityAddress, TvmCell payload) external override reserve
+    function setAuthority(address authorityAddress, TvmCell payload) external override onlyAuthority reserve
     {
-        // If Authority is set Owner can't change anything
-        if(_authorityAddress != addressZero){    require(senderIsAuthority(), ERROR_MESSAGE_SENDER_IS_NOT_MY_AUTHORITY);    }
-        else                                {    require(senderIsOwner(),     ERROR_MESSAGE_SENDER_IS_NOT_MY_OWNER);        }
-        
         emit authorityChanged(_authorityAddress, authorityAddress);
-        _authorityAddress = authorityAddress;
 
-        ILiquidTokenSetAuthorityCallback(authorityAddress).onSetAuthorityCallback{value: 0, flag: 128, bounce: true}(
+        IBasicTokenSetAuthorityCallback(authorityAddress).onSetAuthorityCallback{value: 0, flag: 128, bounce: true}(
             _collectionAddress,
             _tokenID,
             _ownerAddress,
+            _authorityAddress,
             payload);
+        
+        _authorityAddress = authorityAddress;
     }
 
     //========================================
     //    
     function setMetadata(string metadata) external override onlyMetadataAuthority reserve returnChange
     {
-        require(_metadataIsMutable, ERROR_MESSAGE_METADATA_IS_LOCKED);
+        require(!_metadataLocked, ERROR_MESSAGE_METADATA_IS_LOCKED);
         emit metadataChanged();
         _metadata = metadata;
     }
@@ -239,8 +227,8 @@ contract LiquidToken is ILiquidToken, IBase
     //    
     function lockMetadata() external override onlyMetadataAuthority reserve returnChange
     {
-        require(_metadataIsMutable, ERROR_MESSAGE_METADATA_IS_LOCKED);
-        _metadataIsMutable = false;
+        require(!_metadataLocked, ERROR_MESSAGE_METADATA_IS_LOCKED);
+        _metadataLocked = false;
     }
 
     //========================================
@@ -249,22 +237,22 @@ contract LiquidToken is ILiquidToken, IBase
     {
         // TODO: require enough funds
         
-        require(_editionNumber == 0,                            ERROR_MESSAGE_CAN_NOT_REPRINT      );
-        require(!_masterEditionPrintLocked,                     ERROR_MESSAGE_PRINT_IS_LOCKED      );
-        require(_masterEditionMaxSupply > 0 && 
-                _masterEditionMaxSupply > _masterEditionSupply, ERROR_MESSAGE_PRINT_SUPPLY_EXCEEDED);
+        require(_printID == 0,                  ERROR_MESSAGE_CAN_NOT_REPRINT      );
+        require(!_printLocked,                  ERROR_MESSAGE_PRINT_IS_LOCKED      );
+        require(_printMaxSupply > 0 && 
+                _printMaxSupply > _printSupply, ERROR_MESSAGE_PRINT_SUPPLY_EXCEEDED);
         
-        _masterEditionSupply += 1;
-        (address addr, TvmCell stateInit) = calculateFutureTokenAddress(_tokenID, _masterEditionSupply);
-        emit printCreated(_masterEditionSupply, addr);
+        _printSupply += 1;
+        (address addr, TvmCell stateInit) = calculateFutureTokenAddress(_tokenID, _printSupply);
+        emit printCreated(_printSupply, addr);
 
         new LiquidToken{value: 0, flag: 128, stateInit: stateInit}(
             targetOwnerAddress,
             _ownerAddress,
             _metadata,
-            _primarySaleHappened,
-            _metadataIsMutable,
+            _metadataLocked,
             _metadataAuthorityAddress,
+            _primarySaleHappened,
             0,
             true,
             _creatorsPercent,
@@ -275,8 +263,8 @@ contract LiquidToken is ILiquidToken, IBase
     //
     function lockPrint() external override onlyOwner reserve returnChange
     {
-        require(!_masterEditionPrintLocked, ERROR_MESSAGE_PRINT_IS_LOCKED);
-        _masterEditionPrintLocked = true;
+        require(!_printLocked, ERROR_MESSAGE_PRINT_IS_LOCKED);
+        _printLocked = true;
     }
 
     //========================================
@@ -288,15 +276,13 @@ contract LiquidToken is ILiquidToken, IBase
     
     //========================================
     //
-    onBounce(TvmSlice slice) external reserve
+    onBounce(TvmSlice slice) external reserve returnChangeTo(_ownerAddress)
     {
         uint32 functionId = slice.decode(uint32);
-        if (functionId == tvm.functionId(ILiquidTokenSetAuthorityCallback.onSetAuthorityCallback)) 
+        if (functionId == tvm.functionId(IBasicTokenSetAuthorityCallback.onSetAuthorityCallback)) 
         {
-            emit authorityChanged(_authorityAddress, addressZero);
-            _authorityAddress = addressZero; // Reset Authority
-
-            _ownerAddress.transfer(0, true, 128);
+            emit authorityChanged(_authorityAddress, _ownerAddress);
+            _authorityAddress = _ownerAddress; // Reset Authority
         }
     }
 }
