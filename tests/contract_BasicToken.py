@@ -19,8 +19,8 @@ class BasicToken(BaseContract):
         result = self._callFromMultisig(msig=msig, functionName="setOwner", functionParams={"ownerAddress":ownerAddress}, value=DIME, flags=1)
         return result
 
-    def setAuthority(self, msig: SetcodeMultisig, authorityAddress: str):
-        result = self._callFromMultisig(msig=msig, functionName="setAuthority", functionParams={"authorityAddress":authorityAddress}, value=DIME, flags=1)
+    def setAuthority(self, msig: SetcodeMultisig, authorityAddress: str, payload: str):
+        result = self._callFromMultisig(msig=msig, functionName="setAuthority", functionParams={"authorityAddress":authorityAddress, "payload":payload}, value=DIME, flags=1)
         return result
 
     #========================================

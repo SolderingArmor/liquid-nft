@@ -1,4 +1,4 @@
-pragma ton-solidity >=0.52.0;
+pragma ton-solidity >=0.55.0;
 pragma AbiHeader time;
 pragma AbiHeader pubkey;
 pragma AbiHeader expire;
@@ -60,7 +60,7 @@ contract BasicToken is IBasicToken, IBase
     constructor(address ownerAddress,
                 address authorityAddress,
                 address initiatorAddress,
-                string  metadata) public reserve returnChangeTo(initiatorAddress)
+                string  metadata) public onlyCollection reserve returnChangeTo(initiatorAddress)
     {
         _ownerAddress     = ownerAddress;
         _authorityAddress = authorityAddress;
@@ -69,7 +69,7 @@ contract BasicToken is IBasicToken, IBase
     
     //========================================
     //    
-    function setOwner(address ownerAddress) external override reserve returnChange
+    function setOwner(address ownerAddress) external override onlyAuthority reserve returnChange
     {
         emit ownerChanged    (_ownerAddress,     ownerAddress);
         emit authorityChanged(_authorityAddress, ownerAddress);
@@ -96,7 +96,7 @@ contract BasicToken is IBasicToken, IBase
 
     //========================================
     //
-    function destroy() external override onlyOwner
+    function destroy() external override onlyAuthority
     {
         selfdestruct(_ownerAddress);
     }

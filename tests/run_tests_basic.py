@@ -14,6 +14,7 @@ from   pathlib import Path
 from   pprint import pprint
 from   contract_BasicToken      import BasicToken
 from   contract_BasicCollection import BasicCollection
+from   contract_BasicStaking    import BasicStaking
 
 SERVER_ADDRESS = "https://net.ton.dev"
 
@@ -75,37 +76,19 @@ def _getExitCode(msgIdArray):
 # 
 defaultMeta = {
     "name"  : "Degen test #",
-    "symbol": "TST",
     "description": "Test description",
-    "seller_fee_basis_points": 1000,
-    "image": "image.png",
+    "preview": {"uri": "image.png","type": "image/png"},
     "external_url": "",
-    "collection": {},
-    "attributes": [],
-    "properties": {
-        "files": [
-            {"uri": "image.png","type": "image/png"}
-        ],
-        "category": "image"
-    }
+    "files": [{"uri": "image.png","type": "image/png"}]
 }
 
 
 defaultCollectionMeta = {
     "name"  : "Name",
-    "symbol": "",
     "description": "Description",
-    "seller_fee_basis_points": 1000,
-    "image": "image.png",
+    "preview": {"uri": "image.png","type": "image/png"},
     "external_url": "",
-    "collection": {},
-    "attributes": [],
-    "properties": {
-        "files": [
-            {"uri": "image.png","type": "image/png"}
-        ],
-        "category": "image"
-    }
+    "files": [{"uri": "image.png","type": "image/png"}]
 }
 
 # ==============================================================================
@@ -121,15 +104,19 @@ nonce = hex(random.randint(0, 0xFFFFFFFFFFFFFFFFFFFFFFFF))
 print(nonce)
 
 collection = BasicCollection(everClient=getClient(), nonce=nonce, ownerAddress=authority.ADDRESS, initiatorAddress=authority.ADDRESS, metadata="{}")
+staker     = BasicStaking   (everClient=getClient(), nonce=nonce, ownerAddress=authority.ADDRESS, initiatorAddress=authority.ADDRESS, collectionAddress=collection.ADDRESS)
 
-print(" MSIG:",  authority.ADDRESS)
-print("COLCT:",  collection.ADDRESS)
+print("  MSIG:",  authority.ADDRESS )
+print("COLLCT:",  collection.ADDRESS)
+print("STAKER:",  staker.ADDRESS    )
 
 giverGive(getClient(), authority.ADDRESS, EVER * 10)
 
 authority.deploy()
 authority.sendTransaction(collection.ADDRESS, EVER)
+authority.sendTransaction(staker.ADDRESS,     EVER)
 result = collection.deploy()
+result = staker.deploy()
 
 metaList = []
 for i in range(0, 20):
@@ -140,10 +127,18 @@ for i in range(0, 20):
 #print(metaList)
 
 result = collection.createToken(msig=authority, ownerAddress=authority.ADDRESS, authorityAddress=authority.ADDRESS, initiatorAddress=authority.ADDRESS, metadata=metaList[0])
-_unwrapMessagesAndPrint(result)
+#_unwrapMessagesAndPrint(result)
 
 token = BasicToken(everClient=getClient(), collectionAddress=collection.ADDRESS, tokenID=0)
-print(token.getBasicInfo())
+pprint(token.getBasicInfo())
+
+result = token.setAuthority(msig=authority, authorityAddress=staker.ADDRESS, payload="")
+
+result = staker.unstake(msig=authority, tokenAddress=token.ADDRESS)
+_unwrapMessagesAndPrint(result)
+
+pprint(token.getBasicInfo())
+pprint(staker.getInfo())
 
 """
 # ==============================================================================

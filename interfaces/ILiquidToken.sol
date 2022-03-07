@@ -28,7 +28,7 @@ import "../interfaces/IBasicToken.sol";
 //    "description": "Never gonna give you up!",
 //    "preview": {
 //        "uri": "https://gateway.pinata.cloud/ipfs/QmYoiSjZUotKiYhMfzUSRWYTZUDq6MCCkXAbDPdC2TbdpU",
-//        "mime_type": "image/png"
+//        "type": "image/png"
 //    }
 //    "external_url": "https://freeton.org",
 //    "attributes": [
@@ -48,7 +48,7 @@ import "../interfaces/IBasicToken.sol";
 //    "files": [
 //        {
 //            "uri": "https://gateway.pinata.cloud/ipfs/QmYoiSjZUotKiYhMfzUSRWYTZUDq6MCCkXAbDPdC2TbdpU",
-//            "mime_type": "image/png"
+//            "type": "image/png"
 //        }
 //    ]
 //}
@@ -84,7 +84,7 @@ interface ILiquidToken is IBasicToken
     ///     authroityAddress         - NFT authority that can change the owner and authority itself, needed for staking, farming, auctions, etc.;
     ///     metadata                 - Token metadata in JSON format;
     ///     primarySaleHappened      - If 100% of the first sale should be distributed between the creators list;
-    ///     metadataIsMutable        - Boolean if metadata is mutable and can be changed;
+    ///     metadataLocked           - Boolean if metadata is mutable and can be changed;
     ///     metadataAuthorityAddress - Address of an authority who can update metadata (if it is mutable);
     ///     printSupply              - Current amount of copies if the token can be printed;
     ///     printMaxSupply           - Maximum amount of copies if the token can be printed;

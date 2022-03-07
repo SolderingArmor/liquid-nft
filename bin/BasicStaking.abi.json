@@ -1,0 +1,110 @@
+{
+	"ABI version": 2,
+	"version": "2.2",
+	"header": ["pubkey", "time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"},
+				{"name":"initiatorAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getInfo",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"nonce","type":"uint256"},
+				{"name":"ownerAddress","type":"address"},
+				{"name":"collectionAddress","type":"address"},
+				{"components":[{"name":"confirmed","type":"bool"},{"name":"dt","type":"uint32"},{"name":"tokenID","type":"uint256"},{"name":"ownerAddress","type":"address"},{"name":"initiatorAddress","type":"address"},{"name":"payload","type":"cell"}],"name":"stakedTokens","type":"map(address,tuple)"}
+			]
+		},
+		{
+			"name": "setOwner",
+			"inputs": [
+				{"name":"ownerAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onSetAuthorityCallback",
+			"inputs": [
+				{"name":"collectionAddress","type":"address"},
+				{"name":"tokenID","type":"uint256"},
+				{"name":"ownerAddress","type":"address"},
+				{"name":"initiatorAddress","type":"address"},
+				{"name":"payload","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "onGetTokenAddressCallback",
+			"inputs": [
+				{"name":"tokenID","type":"uint256"},
+				{"name":"tokenAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "unstake",
+			"inputs": [
+				{"name":"tokenAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		}
+	],
+	"data": [
+		{"key":1,"name":"_nonce","type":"uint256"},
+		{"key":2,"name":"_collectionAddress","type":"address"}
+	],
+	"events": [
+		{
+			"name": "tokenStaked",
+			"inputs": [
+				{"name":"tokenAddress","type":"address"},
+				{"name":"tokenID","type":"uint256"},
+				{"name":"collectionAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "tokenUnstaked",
+			"inputs": [
+				{"name":"tokenAddress","type":"address"},
+				{"name":"tokenID","type":"uint256"},
+				{"name":"collectionAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "tokenStakeConfirmed",
+			"inputs": [
+				{"name":"tokenAddress","type":"address"},
+				{"name":"tokenID","type":"uint256"},
+				{"name":"collectionAddress","type":"address"}
+			],
+			"outputs": [
+			]
+		}
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_gasReserve","type":"uint128"},
+		{"name":"_nonce","type":"uint256"},
+		{"name":"_ownerAddress","type":"address"},
+		{"name":"_collectionAddress","type":"address"},
+		{"components":[{"name":"confirmed","type":"bool"},{"name":"dt","type":"uint32"},{"name":"tokenID","type":"uint256"},{"name":"ownerAddress","type":"address"},{"name":"initiatorAddress","type":"address"},{"name":"payload","type":"cell"}],"name":"_stakedTokens","type":"map(address,tuple)"}
+	]
+}
